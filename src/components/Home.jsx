@@ -34,7 +34,7 @@ export default function Home() {
       const data = JSON.parse(msg.data);
       // console.log(data.data);
       // console.log(msg);
-        setMessages([...messages, data.message])
+        setMessages([...messages, data.msg])
       })
   }
   const sendMsg = () =>{
@@ -45,7 +45,7 @@ export default function Home() {
         setMessages([...messages, 'No Websocket connection'])
         return
       }
-      ws.send({msg: JSON.stringify(messageInput)})
+      ws.send(JSON.stringify({msg: messageInput}))
       console.log({msg: JSON.stringify(messageInput)});
       
     }
