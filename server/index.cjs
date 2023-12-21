@@ -28,9 +28,12 @@ wss.on('connection', (ws) => {
   
   ws.on('error', console.error)
 
-  ws.on('message', (message) => {
-    console.log(`Received message => ${message}`)
-
+  ws.on('message', (data, isBinary) => {
+    console.log('Data is: ', data)
+  //  const message = isBinary? JSON.parse(data):data
+      const message = data.toString()
+    // console.log(`Received message =>`, message)
+    console.dir(message, {depth: null})
     if (message.createRoom) {
       const roomId = uuid.v4()
       const key = uuid.v4()
@@ -53,8 +56,17 @@ wss.on('connection', (ws) => {
       }
     } else if (message.startGame) {
       
+    } else if (message.msg){
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(message));
+            // console.log(client);
+        } 
+    });
     }
-    // ws.send(`Hello, you sent => ${message}`)
+
+
+    
   })
 
   // console.log(JSON.stringify({message: 'Client connected'}))
