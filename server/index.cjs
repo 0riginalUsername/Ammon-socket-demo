@@ -10,6 +10,21 @@ const wss = new WebSocket.Server({ server: server, path: '/api/ws' })
 
 const port =  5555
 
+function makeId() {
+
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < 6) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
+
+
+
 app.use(cors())
 
 // HTTP connections
@@ -19,7 +34,7 @@ app.use(cors())
 
 // WebSocket connections
 const clients = {}
-const rooms = {}
+
 
 wss.on('connection', (ws) => {
   console.log('Client connected')
@@ -28,23 +43,27 @@ wss.on('connection', (ws) => {
   
   ws.on('error', console.error)
 
-  ws.on('message', (data, isBinary) => {
+  ws.on('message', (data) => {
     // console.log(JSON.parse(data))
     //  const message = isBinary? JSON.parse(data):data
     const message = JSON.parse(data)
+    if(message.msg){
     console.log('Recieved message =>', message.msg)
-    
+    } 
     // console.dir(message, {depth: null})
     if (message.createRoom) {
       const roomId = uuid.v4()
-      const key = uuid.v4()
-      rooms[key] = {
+      const key = makeId()
+      let rooms = {
         id: roomId,
         key: key,
         name: message.createRoom.name,
         users: [ws]
       }
-
+      console.log('room created, entry key is:', key);
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify(rooms))
+      })
       // clients[id].send(JSON.stringify({roomId}))
     } else if (message.joinRoom) {
       const room = rooms[message.joinRoom.key]
@@ -58,7 +77,7 @@ wss.on('connection', (ws) => {
     } else if (message.startGame) {
       
     } else if (message.msg){
-      console.log('sent msg');
+      console.log('sent message');
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(message));

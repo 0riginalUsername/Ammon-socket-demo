@@ -1,12 +1,30 @@
 import { useState } from 'react'  
 import React from 'react'
-
+import { Link } from 'react-router-dom'
 
 let ws
-export default function Home() {
+export default function Home({count}) {
+  
+  function setRoomKey(key){
+    return async (dispatch) => {
+        dispatch({type: 'getKey', payload: key})
+    }
+}
+
+
+
+
   const [clientList, setClientList] = useState([])
   const [messages, setMessages] = useState([])
   const [messageInput, setMessageInput] = useState('')
+  const [roomName, setRoomName] = useState('')
+  const [roomKey, setRoomkey] = useState('')
+  
+
+
+
+
+
   function closeConnection() {
     if (!!ws) {
       ws.close();
@@ -32,10 +50,22 @@ export default function Home() {
     
     ws.addEventListener('message', (msg) => {
       const data = JSON.parse(msg.data);
-      // console.log(data.data);
-      // console.log(msg);
+      if(data.msg){
         setMessages([...messages, data.msg])
-      })
+      }
+      console.log(data.key);
+      // console.log(data.data);
+      if(data.key){
+        let roomKey = data.key
+        console.log(roomKey);
+        setRoomkey([`room key is: `, roomKey])
+        setRoomKey(roomKey)
+      }
+      
+      
+    })
+    
+    
   }
   const sendMsg = () =>{
     
@@ -55,17 +85,20 @@ export default function Home() {
     setMessages([...messages, 'No Websocket connection'])
   }
   
-  const requestRoomCreation = () => {
+  const createRoom = () => {
    
     
-    const data = {createRoom:{name: 'userinput'}
-    
-  }
-  WebSocket.send(data)
-  //Send message to websocket server to create room.
+    const data = {createRoom:{name: roomName}}
+
+    ws.send(JSON.stringify(data))
   
+ 
+  //Send message to websocket server to create room.
 }
 
+  const joinRoom = () => {
+
+  }
 
 const mappedClients = clientList.map((client, index) => {
   return <li key={index}>{client}</li>
@@ -78,8 +111,12 @@ const mappedClients = clientList.map((client, index) => {
   
   return (
     <main>
+      <h3>Room name is: {roomName}</h3>
+      <h3>{roomKey}</h3>
       <h1>Welcome to the chat!</h1>
-      <button onClick={() => requestRoomCreation()}>Create Room</button>
+      {/* <Link to="/room">
+        <button onClick={() => requestRoomCreation()}>Create Room</button>
+      </Link> */}
       <button onClick={() => openWs()}>Open Socket</button>
       <button onClick={() => closeWs()}>Close Socket</button>
       <div className="input-block">
@@ -87,6 +124,14 @@ const mappedClients = clientList.map((client, index) => {
           <button onClick={sendMsg}>
             Send message
           </button>
+      </div>
+      <div className="room-block">
+          <input value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
+          <Link to="/room">
+          <button onClick={createRoom}>
+            Create Room
+          </button>
+          </Link>
       </div>
       <div>{mappedClients}</div>
       <div>{mappedMessages}</div>
