@@ -1,6 +1,7 @@
 import { useState } from 'react'  
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 let ws
 export default function Home({count}) {
@@ -12,8 +13,8 @@ export default function Home({count}) {
 }
 
 
-
-
+  const asdf = useSelector(state => state.key)
+  console.log(asdf);
   const [clientList, setClientList] = useState([])
   const [messages, setMessages] = useState([])
   const [messageInput, setMessageInput] = useState('')
@@ -86,12 +87,12 @@ export default function Home({count}) {
   }
   
   const createRoom = () => {
-   
+    const navigate = useNavigate()
     
     const data = {createRoom:{name: roomName}}
 
     ws.send(JSON.stringify(data))
-  
+    navigate('/room')
  
   //Send message to websocket server to create room.
 }
@@ -107,6 +108,7 @@ const mappedClients = clientList.map((client, index) => {
     return <p key={index}>{msg}</p>
   })
  
+  
   
   
   return (

@@ -1,12 +1,16 @@
 import useState from 'react'
-import React from 'react'
+import { useSelector } from 'react-redux'
 
-
-export default function Room(){
+function Room(){
+    
     const roomKey = useSelector((state) => state.key)
+    
     return(
         <div>
-        dogs are cool :)
+            {roomKey}
+        dogs are cool 
         </div>
     )
 }
+
+export default Room
