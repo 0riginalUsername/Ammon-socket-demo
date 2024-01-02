@@ -3,12 +3,27 @@ const http = require('http')
 const cors = require('cors')
 const WebSocket = require('ws')
 const uuid = require('uuid')
+const session = require('express-session')
+
+const getFuncy = async (func) => {
+  await import('./controller.js')
+    .then(module => {
+      return module.default[func]
+    })
+}
 
 const app = express()
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server: server, path: '/api/ws' })
 
 const port =  5555
+
+app.use(session({secret: 'quiet', saveUninitialized: true, resave: false}))
+
+app.post('/api/auth', function(req, res) {
+  getFuncy('login')
+  console.log('hit');
+})
 
 function makeId() {
 
@@ -61,11 +76,13 @@ wss.on('connection', (ws) => {
         users: [ws]
       }
       console.log('room created, entry key is:', key);
+      console.log(rooms.users.clients);
       wss.clients.forEach((client) => {
         client.send(JSON.stringify(rooms))
       })
       // clients[id].send(JSON.stringify({roomId}))
     } else if (message.joinRoom) {
+      console.log(message.joinRoom);
       const room = rooms[message.joinRoom.key]
       if (room) {
         room.users.push({user_id: id, name: 'Ammon'})

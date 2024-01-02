@@ -1,20 +1,26 @@
 import { useState } from 'react'  
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 
 let ws
 export default function Home({count}) {
-  
+  let navigate = useNavigate()
+  let dispatch = useDispatch()
   function setRoomKey(key){
-    return async (dispatch) => {
+    // return async (dispatch) => {
         dispatch({type: 'getKey', payload: key})
-    }
+    // }
 }
 
+  function setClients(clients){
 
-  const asdf = useSelector(state => state.key)
-  console.log(asdf);
+      dispatch({type: 'getPlayers', payload: clients})
+  }
+
+
+  // const asdf = useSelector(state => state.key)
+  // console.log(asdf);
   const [clientList, setClientList] = useState([])
   const [messages, setMessages] = useState([])
   const [messageInput, setMessageInput] = useState('')
@@ -24,7 +30,7 @@ export default function Home({count}) {
 
 
 
-
+  
 
   function closeConnection() {
     if (!!ws) {
@@ -54,13 +60,20 @@ export default function Home({count}) {
       if(data.msg){
         setMessages([...messages, data.msg])
       }
-      console.log(data.key);
+      ;
       // console.log(data.data);
       if(data.key){
         let roomKey = data.key
-        console.log(roomKey);
-        setRoomkey([`room key is: `, roomKey])
+        // console.log(roomKey);
+        // setRoomkey([`room key is: `, roomKey])
         setRoomKey(roomKey)
+      }
+
+      if(data.users){
+        console.log(data);
+        let allClients = data.users
+        console.log(allClients);
+        setClients(allClients)
       }
       
       
@@ -70,8 +83,8 @@ export default function Home({count}) {
   }
   const sendMsg = () =>{
     
-      if(!messageInput){
-        return
+    if(!messageInput){
+      return
       } else if (!ws) {
         setMessages([...messages, 'No Websocket connection'])
         return
@@ -81,38 +94,43 @@ export default function Home({count}) {
       
     }
 
-  const closeWs = () => {
-    closeConnection()
-    setMessages([...messages, 'No Websocket connection'])
-  }
-  
-  const createRoom = () => {
-    const navigate = useNavigate()
+    const closeWs = () => {
+      closeConnection()
+      setMessages([...messages, 'No Websocket connection'])
+    }
     
-    const data = {createRoom:{name: roomName}}
+    
+    const joinRoom = () => {
+      
+    }
+    const createRoom = () => {
+      
+      
+      const data = {createRoom:{name: roomName}}
+    
+      ws.send(JSON.stringify(data))
+      navigate('/room')
+    
+    //Send message to websocket server to create room.
+    }
 
-    ws.send(JSON.stringify(data))
-    navigate('/room')
- 
-  //Send message to websocket server to create room.
-}
-
-  const joinRoom = () => {
-
-  }
-
+    const login = () => {
+      navigate('/login')
+    }
+    
 const mappedClients = clientList.map((client, index) => {
   return <li key={index}>{client}</li>
-  })
-  const mappedMessages = messages.map((msg, index) => {
+})
+const mappedMessages = messages.map((msg, index) => {
     return <p key={index}>{msg}</p>
   })
- 
+  
   
   
   
   return (
     <main>
+      <button onClick={login}>Login</button>
       <h3>Room name is: {roomName}</h3>
       <h3>{roomKey}</h3>
       <h1>Welcome to the chat!</h1>
@@ -129,16 +147,15 @@ const mappedClients = clientList.map((client, index) => {
       </div>
       <div className="room-block">
           <input value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
-          <Link to="/room">
+          
           <button onClick={createRoom}>
             Create Room
           </button>
-          </Link>
+          
       </div>
       <div>{mappedClients}</div>
       <div>{mappedMessages}</div>
     </main>
   )
 }
-  
-  
+
