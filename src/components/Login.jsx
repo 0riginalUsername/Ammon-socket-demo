@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import axios from 'axios'
-
+import { useNavigate } from 'react-router'
 export default function Login() {
+    const navigate = useNavigate()
     const [usernameValue, setUsernameValue] = useState('')
     const [passwordValue, setPasswordValue] = useState('')
     
@@ -17,11 +18,11 @@ export default function Login() {
 
     const onLogin = async (e, formData) => {
         e.preventDefault()
-    
+        console.log(formData);
         let res = await axios.post('http://localhost:5555/api/auth', formData)
     
         if(res.data.success) {
-          navigate('/')
+          navigate('/home')
           console.log('login success');
         } else {
           alert('Login failed!')

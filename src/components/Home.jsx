@@ -1,54 +1,67 @@
-import { useState } from 'react'  
+import { useState, useEffect } from 'react'  
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-
+import axios from 'axios'
 let ws
 export default function Home({count}) {
   let navigate = useNavigate()
   let dispatch = useDispatch()
   function setRoomKey(key){
     // return async (dispatch) => {
-        dispatch({type: 'getKey', payload: key})
+      dispatch({type: 'getKey', payload: key})
     // }
-}
-
-  function setClients(clients){
-
-      dispatch({type: 'getPlayers', payload: clients})
   }
-
-
-  // const asdf = useSelector(state => state.key)
-  // console.log(asdf);
+  
+  function setClients(clients){
+    
+    dispatch({type: 'getPlayers', payload: clients})
+  }
+  
   const [clientList, setClientList] = useState([])
   const [messages, setMessages] = useState([])
   const [messageInput, setMessageInput] = useState('')
   const [roomName, setRoomName] = useState('')
   const [roomKey, setRoomkey] = useState('')
+  const [joinKey, setJoinKey] = useState('')
+  const username = useSelector((state) => state.username)
   
 
 
+  
+  
+  
+  
+  useEffect(() => {
+    if(!username){
+      navigate('/')
+    }
+  },[])
 
   
-
   function closeConnection() {
     if (!!ws) {
       ws.close();
     }
   }
   
-  const openWs = () => {
+  useEffect(()=> {
+    openWs()
+  }, [])
+
+
+  function openWs (){
     closeConnection();
-    
     ws = new WebSocket('ws://localhost:5555/api/ws');
+    // console.log(WebSocket);
     
     ws.addEventListener('error', () => {
       setMessages([...messages,'WebSocket error']);
     });
     
     ws.addEventListener('open', () => {
-      setMessages([...messages,'WebSocket connection established']);
+      setMessages([...messages,'WebSocket connection established'])
+      
     });
     
     ws.addEventListener('close', () => {
@@ -57,7 +70,9 @@ export default function Home({count}) {
     
     ws.addEventListener('message', (msg) => {
       const data = JSON.parse(msg.data);
+      console.log(data);
       if(data.msg){
+        console.log('message recieved in DOM');
         setMessages([...messages, data.msg])
       }
       ;
@@ -70,10 +85,14 @@ export default function Home({count}) {
       }
 
       if(data.users){
-        console.log(data);
+        // console.log(data);
         let allClients = data.users
-        console.log(allClients);
+        // console.log(allClients);
         setClients(allClients)
+      }
+      if(data.joinRoomReq){
+        let roomKey = data.joinRoomReq.key
+
       }
       
       
@@ -81,6 +100,7 @@ export default function Home({count}) {
     
     
   }
+  
   const sendMsg = () =>{
     
     if(!messageInput){
@@ -90,7 +110,7 @@ export default function Home({count}) {
         return
       }
       ws.send(JSON.stringify({msg: messageInput}))
-      console.log({msg: JSON.stringify(messageInput)});
+      // console.log({msg: JSON.stringify(messageInput)});
       
     }
 
@@ -101,13 +121,16 @@ export default function Home({count}) {
     
     
     const joinRoom = () => {
-      
+      const data = {joinRoomReq: {username, joinKey}}
+      ws.send(JSON.stringify(data))
     }
     const createRoom = () => {
+      // const username = useSelector((state) => state.username)
+      if(!username){
+        return alert('')
+      }
+      const data = {createRoom:{name: roomName, username}}
       
-      
-      const data = {createRoom:{name: roomName}}
-    
       ws.send(JSON.stringify(data))
       navigate('/room')
     
@@ -130,15 +153,11 @@ const mappedMessages = messages.map((msg, index) => {
   
   return (
     <main>
-      <button onClick={login}>Login</button>
-      <h3>Room name is: {roomName}</h3>
       <h3>{roomKey}</h3>
       <h1>Welcome to the chat!</h1>
       {/* <Link to="/room">
         <button onClick={() => requestRoomCreation()}>Create Room</button>
       </Link> */}
-      <button onClick={() => openWs()}>Open Socket</button>
-      <button onClick={() => closeWs()}>Close Socket</button>
       <div className="input-block">
           <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
           <button onClick={sendMsg}>
@@ -148,10 +167,19 @@ const mappedMessages = messages.map((msg, index) => {
       <div className="room-block">
           <input value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
           
-          <button onClick={createRoom}>
+          <button onClick={createRoom} >
             Create Room
           </button>
           
+      </div>
+
+      <div className="join-room">
+        <input value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
+
+        <button onClick={joinRoom}>
+          Join Room
+        </button>
+
       </div>
       <div>{mappedClients}</div>
       <div>{mappedMessages}</div>
