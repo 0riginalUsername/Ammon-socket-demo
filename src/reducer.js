@@ -9,6 +9,8 @@ const initialState = { key: ''}
             return {...state, clients: action.payload}
         case 'getUsername':
             return {...state, username: action.payload}
+        case 'getUsernames':
+            return {...state, usernames: action.payload}
         default:
             return state
         

@@ -3,13 +3,14 @@ import {User} from './model.js'
 const handlerFunctions = {
     
     login: async(req, res) => {
-        
         const {username, password} = req.body
         const findUser = await User.findOne({
             where: {username: username, password: password}
         })
+
         if(findUser){
             req.session.userId = findUser.userId
+            
             res.send({success: true})
         }
         else{
@@ -31,8 +32,8 @@ const handlerFunctions = {
             res.send({success: true})
         }
     },
-    checkSession: async(req, res) => {
-        console.log(req.session)
+    checkSession: (req, res) => {
+        
         if(!req.session.userId){
             res.send({success:false})
         }
@@ -40,6 +41,7 @@ const handlerFunctions = {
             res.send({success: true})
         }
     },
+   
     
 }
 export default handlerFunctions

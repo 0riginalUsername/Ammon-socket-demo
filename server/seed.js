@@ -1,5 +1,6 @@
 import {User, db } from './model.js'
-
+import url from 'url'
+import util from 'util'
 
 console.log('seeding data...');
 await db.sync({ force: true})
@@ -16,6 +17,11 @@ const usersInDB = await Promise.all(
     })
 )
 console.log(usersInDB);
+if (process.argv[1] === url.fileURLToPath(import.meta.url)) {
+    console.log('Syncing database...');
+    await db.sync();
+    console.log('Finished syncing database!');
+  }
 
 await db.close()
 console.log("seeding complete");

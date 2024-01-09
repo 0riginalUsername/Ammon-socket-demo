@@ -22,7 +22,7 @@ export default function Home({count}) {
   const [messages, setMessages] = useState([])
   const [messageInput, setMessageInput] = useState('')
   const [roomName, setRoomName] = useState('')
-  const [roomKey, setRoomkey] = useState('')
+  
   const [joinKey, setJoinKey] = useState('')
   const username = useSelector((state) => state.username)
   
@@ -33,9 +33,12 @@ export default function Home({count}) {
   
   
   useEffect(() => {
-    if(!username){
-      navigate('/')
-    }
+    axios.get('/api/check')
+    .then(res => {
+      if(!res.data.success){
+        navigate('/')
+      }
+    })
   },[])
 
   
@@ -68,17 +71,18 @@ export default function Home({count}) {
       setMessages([...messages,'WebSocket connection closed']);
     });
     
-    ws.addEventListener('message', (msg) => {
+   ws.addEventListener('message', (msg) => { 
       const data = JSON.parse(msg.data);
       console.log(data);
+      let success = ''
       if(data.msg){
         console.log('message recieved in DOM');
         setMessages([...messages, data.msg])
       }
       ;
       // console.log(data.data);
-      if(data.key){
-        let roomKey = data.key
+      if(data.roomKey){
+        let roomKey = data.roomKey
         // console.log(roomKey);
         // setRoomkey([`room key is: `, roomKey])
         setRoomKey(roomKey)
@@ -90,8 +94,9 @@ export default function Home({count}) {
         // console.log(allClients);
         setClients(allClients)
       }
-      if(data.joinRoomReq){
-        let roomKey = data.joinRoomReq.key
+      if(data.joinRoomSuccess){
+        setRoomKey(data.joinKey)
+        navigate('/room')
 
       }
       
@@ -127,7 +132,7 @@ export default function Home({count}) {
     const createRoom = () => {
       // const username = useSelector((state) => state.username)
       if(!username){
-        return alert('')
+        return alert('user not found!')
       }
       const data = {createRoom:{name: roomName, username}}
       
@@ -153,7 +158,7 @@ const mappedMessages = messages.map((msg, index) => {
   
   return (
     <main>
-      <h3>{roomKey}</h3>
+      {/* <h3>{roomKey}</h3> */}
       <h1>Welcome to the chat!</h1>
       {/* <Link to="/room">
         <button onClick={() => requestRoomCreation()}>Create Room</button>

@@ -6,26 +6,30 @@ import WebSocket, {WebSocketServer} from 'ws'
 import {v4 as uuidv4} from 'uuid'
 import session from 'express-session'
 import handlerFunctions from './controller.js'
+import ViteExpress from 'vite-express'
+import {Room, User} from './model.js'
 
 const {login, register, checkSession} = handlerFunctions
 
 
 const app = express()
-const server = http.createServer(app)
-const wss = new WebSocketServer({ server: server, path: '/api/ws' })
 
 const port =  5555
 
 app.use(cors())
-app.use(session({secret: 'quiet', saveUninitialized: true, resave: false, sameSite: false}))
+app.use(session({secret: 'quiet', saveUninitialized: true, resave: false, cookie: {sameSite: false}}))
 app.use(express.json())
 
-// app.post('/api/check', checkSession)
+app.get('/api/check', checkSession)
 app.post('/api/auth', login)
 app.post('/api/newuser', register)
 
-function makeId() {
 
+const server = ViteExpress.listen(app, port, () => console.log(`Server running on port ${port}!`))
+const wss = new WebSocketServer({ server: server, path: '/api/ws' })
+
+function makeId() {
+  
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const charactersLength = characters.length;
@@ -37,13 +41,7 @@ function makeId() {
   return result;
 }
 
-class Room {
-    constructor(rooms){
-        this.key = rooms.key,
-        this.name = rooms.name
-        this.usernames = rooms.usernames
-    }
-}
+
 
 
 
@@ -56,6 +54,15 @@ class Room {
 const clients = {}
 let globalRooms = {}
 
+// {
+//   asdknazroq234r6: {
+//     // room info
+//   },
+//   aiwenigfdfxuznlivx21324580albie: {
+
+//   }
+// }
+
 
 wss.on('connection', (ws) => {
   console.log('Client connected')
@@ -66,8 +73,8 @@ wss.on('connection', (ws) => {
   
   ws.on('error', console.error)
 
-  ws.on('message', (data) => {
-      // console.log(JSON.parse(data))
+  ws.on('message', async (data) => {
+    
       //  const message = isBinary? JSON.parse(data):data
       
       const message = JSON.parse(data)
@@ -76,18 +83,30 @@ wss.on('connection', (ws) => {
         } 
         // console.dir(message, {depth: null})
         if (message.createRoom) {
-            let roomId = uuidv4()
+      
+            
             let roomKey = makeId()
             // console.log(message.createRoom.username);
-            let usernames = [message.createRoom.username]
-            let rooms = {
-                key: roomKey,
+            let username = message.createRoom.username
+            let room = {
+                roomKey,
                 name: message.createRoom.name,
-                usernames
-            }
-            
-             let roomKeyName = new Room(rooms)
-            console.log(roomKeyName);
+                host: username
+              }
+              // write sequelize here
+              const newRoom = await Room.create(room)
+              const foundUser = await User.findOne({
+                where: {username}
+              })
+              await newRoom.addUser(foundUser)
+              let players = await newRoom.getUsers()
+              newRoom.players = players
+              // end sequelize stuff
+              
+              
+              wss.clients.forEach((client) => {
+                client.send(JSON.stringify(newRoom))
+              })
         // rooms.id= roomId
         // rooms.key = key
         // rooms.name = message.createRoom.name
@@ -104,18 +123,28 @@ wss.on('connection', (ws) => {
               })
         }
         //   console.log(rooms.users.clients);
-      wss.clients.forEach((client) => {
-        client.send(JSON.stringify(rooms))
-      })
       // clients[id].send(JSON.stringify({roomId}))
     } else if (message.joinRoomReq) {
+
         // console.log(message.joinRoomReq.joinKey);
         console.log(globalRooms);
         let joinKey = message.joinRoomReq.joinKey
-        
-      if(joinKey === roomKeyName.key){
-          console.log('correct key!');
+        let username = message.joinRoomReq.username
+        let foundRoom = await Room.findOne({where:
+          {roomKey: joinKey}})
+        console.log(foundRoom);
+        if(foundRoom.roomKey === joinKey){
+          
+          // let currentRoom = globalRooms[joinKey]
+          console.log('joined room!');
+          // currentRoom.usernames.push(username)
+          
+          wss.clients.forEach((client) => {
+            client.send(JSON.stringify({joinRoomSuccess: true, joinKey}))
+          })
         }
+        
+     
         else{console.log('wrong key stupid!');}
         
     }
@@ -167,4 +196,3 @@ wss.on('connection', (ws) => {
   }
 })
 
-server.listen(port, () => console.log(`Server running on port ${port}!`))

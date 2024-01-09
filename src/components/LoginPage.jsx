@@ -8,7 +8,7 @@ export default function LoginPage() {
   const handleLogin = async (e, formData) => {
     e.preventDefault()
 
-    let res = await axios.post('http://localhost:5555/api/auth', formData)
+    let res = await axios.post('/api/auth', formData)
 
     if(res.data.success) {
       navigate('/room')
