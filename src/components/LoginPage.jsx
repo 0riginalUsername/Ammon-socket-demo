@@ -17,10 +17,6 @@ export default function LoginPage() {
       alert('Login failed!')
     }
   }
-  const handleRegister = async (e, formData) => {
-    e.preventDefault()
-    let res = await axios
-  }
   return (
     <>
       <h1>Log In</h1>

@@ -1,6 +1,6 @@
 import {User, db } from './model.js'
 import url from 'url'
-import util from 'util'
+
 
 console.log('seeding data...');
 await db.sync({ force: true})

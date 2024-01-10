@@ -1,4 +1,4 @@
-import {User} from './model.js'
+import {User, Room} from './model.js'
 
 const handlerFunctions = {
     
@@ -41,6 +41,16 @@ const handlerFunctions = {
             res.send({success: true})
         }
     },
+    getClients: async(req, res) => {
+        const {roomKey} = req.body
+        // console.log(req.body);
+        const foundRoom = await Room.findOne({
+            where: {roomKey: roomKey}
+        })
+        const players = foundRoom.Users
+        console.log(players);
+        res.send(players)
+    }
    
     
 }

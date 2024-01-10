@@ -2,7 +2,7 @@ import {DataTypes, Model } from 'sequelize'
 import util from 'util'
 import connectToDB from './db.js'
 
-export const db = await connectToDB('postgresql:///CAH')
+export const db = await connectToDB('postgresql://gabea:admin@localhost:5432/CAH')
 
 export class User extends Model {
     [util.inspect.custom]() {
@@ -33,7 +33,7 @@ User.init(
         }
     },
     {
-        modelName: 'users',
+        modelName: "users",
         sequelize: db
     }
 )
@@ -59,14 +59,16 @@ Room.init(
         host: {
             type: DataTypes.STRING(15),
             allowNull: false,
-        }
+        },
+        
+        
         
 
     },{
-        modelName: 'rooms',
+        modelName: "rooms",
         sequelize: db
     }
     
 )
-User.belongsToMany(Room, {through: 'players'})
-Room.belongsToMany(User, {through: 'players'})
+User.belongsToMany(Room, {through: "players"})
+Room.belongsToMany(User, {through: "players"})

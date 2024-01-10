@@ -1,6 +1,5 @@
 
 import express from 'express'
-import http from 'http'
 import cors from 'cors'
 import WebSocket, {WebSocketServer} from 'ws'
 import {v4 as uuidv4} from 'uuid'
@@ -9,7 +8,7 @@ import handlerFunctions from './controller.js'
 import ViteExpress from 'vite-express'
 import {Room, User} from './model.js'
 
-const {login, register, checkSession} = handlerFunctions
+const {login, register, checkSession, getClients} = handlerFunctions
 
 
 const app = express()
@@ -23,9 +22,10 @@ app.use(express.json())
 app.get('/api/check', checkSession)
 app.post('/api/auth', login)
 app.post('/api/newuser', register)
+app.post('/api/clients', getClients)
 
 
-const server = ViteExpress.listen(app, port, () => console.log(`Server running on port ${port}!`))
+const server = ViteExpress.listen(app, port, () => console.log(`Server running on http://localhost:${port}`))
 const wss = new WebSocketServer({ server: server, path: '/api/ws' })
 
 function makeId() {
@@ -91,7 +91,8 @@ wss.on('connection', (ws) => {
             let room = {
                 roomKey,
                 name: message.createRoom.name,
-                host: username
+                host: username,
+                players: [username]
               }
               // write sequelize here
               const newRoom = await Room.create(room)
@@ -102,7 +103,7 @@ wss.on('connection', (ws) => {
               let players = await newRoom.getUsers()
               newRoom.players = players
               // end sequelize stuff
-              
+              console.log(newRoom);
               
               wss.clients.forEach((client) => {
                 client.send(JSON.stringify(newRoom))

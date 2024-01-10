@@ -185,6 +185,10 @@ const mappedMessages = messages.map((msg, index) => {
           Join Room
         </button>
 
+        <button onClick={openWs}>
+          WS connect
+        </button>
+
       </div>
       <div>{mappedClients}</div>
       <div>{mappedMessages}</div>
