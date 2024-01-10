@@ -177,12 +177,16 @@ wss.on('connection', (ws) => {
     if(message.leaveRoom){
       let {userId, roomKey} = message.leaveRoom
       console.log(userId, roomKey);
-      // let foundRoom = await Room.findOne({where:{roomKey}})
-      // let foundUser = await User.findByPk(userId)
-      // foundRoom.removeUser(foundUser)
-      // foundRoom.save()
-      // console.log(foundRoom);
-      console.log('hit');
+      let foundRoom = await Room.findOne({where:{roomKey}})
+      let foundUser = await User.findByPk(userId)
+      foundRoom.removeUser(foundUser)
+      foundRoom.save()
+      let newRoom = await foundRoom.getUsers()
+      console.log(`user "${foundUser.username}" left room!`)
+      console.log(newRoom);
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({updatedRoom: newRoom}))
+      });
     }
     //   const room = rooms[message.joinRoom.key]
 

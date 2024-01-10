@@ -26,8 +26,9 @@ export default function Home({count}) {
   const [joinStatus, setJoinStatus] = useState(false)
   const [joinKey, setJoinKey] = useState('')
   const username = useSelector((state) => state.username)
-  
-
+  const userId = useSelector((state) => state.userId)
+  const roomKey = useSelector((state) => state.roomKey)
+  console.log('userID is:', userId);
 
   
   
@@ -55,6 +56,7 @@ export default function Home({count}) {
 
 
   function openWs (){
+    
     closeConnection();
     ws = new WebSocket('ws://localhost:5555/api/ws');
     // console.log(WebSocket);
@@ -103,8 +105,12 @@ export default function Home({count}) {
 
       }
       if(data.allUsers){
-        setClientList(...clientList, data.allUsers)
+        setClientList(...clientList, data.allUsers, data.allUsers.newRoom)
         console.log(data.allUsers);
+      }
+      if(data.updatedRoom){
+        setClientList(data.updatedRoom)
+        console.log(clientList);
       }
       
     })
@@ -112,6 +118,9 @@ export default function Home({count}) {
     
   }
   
+  
+
+
   const sendMsg = () =>{
     
     if(!messageInput){
@@ -148,9 +157,9 @@ export default function Home({count}) {
     //Send message to websocket server to create room.
     }
     const leaveRoom = (props) => {
-      let {userId, roomKey} = props
+      const {roomKey} = props
       const data = {leaveRoom: {userId, roomKey}}
-      
+      console.log(userId);
       ws.send(JSON.stringify(data))
     }
     const login = () => {

@@ -15,12 +15,17 @@ export default function LandingPage() {
         dispatch({type: 'getUsername', payload: username })
     }
 
+    function setUserId(userId){
+
+      dispatch({type:'getUserId', payload: userId})
+    }
 
   const onLogin = async (e, formData) => {
     e.preventDefault();
     console.log(formData);
     let res = await axios.post("http://localhost:5555/api/auth", formData);
-
+    console.log('userID is:', res.data.userId)
+    setUserId(res.data.userId)
     if (res.data.success) {
         console.log("login success");
         console.log(formData.username);
@@ -32,9 +37,7 @@ export default function LandingPage() {
     }
   };
 
-  const login = () => {
-    navigate("/login");
-  };
+  
   
   const toggleReg = () => {
     setRegState(!regState);
@@ -57,6 +60,7 @@ export default function LandingPage() {
   if (regState === true) {
     return (
       <>
+      <div>Enter your credentials </div>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -85,10 +89,13 @@ export default function LandingPage() {
           <button type="submit">Log in</button>
         </form>
         <button onClick={toggleReg}>Register</button>
+        
       </>
     );
   } else {
     return (
+      <>
+      <div>Register here </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -117,7 +124,9 @@ export default function LandingPage() {
         <button type="submit">
           Register
         </button>
+        <button onClick={toggleReg}>Login</button>
       </form>
+      </>
     );
   }
 }

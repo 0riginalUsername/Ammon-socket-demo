@@ -7,11 +7,11 @@ const handlerFunctions = {
         const findUser = await User.findOne({
             where: {username: username, password: password}
         })
+        
 
         if(findUser){
             req.session.userId = findUser.userId
-            
-            res.send({success: true})
+            res.send({success: true, userId:findUser.userId })
         }
         else{
             res.send({success: false})
@@ -33,7 +33,6 @@ const handlerFunctions = {
         }
     },
     checkSession: (req, res) => {
-        
         if(!req.session.userId){
             res.send({success:false})
         }
@@ -53,6 +52,7 @@ const handlerFunctions = {
         console.log(list);
         res.send(list)
     }
+    
    
     
 }

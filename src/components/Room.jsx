@@ -10,7 +10,8 @@ function RoomPage(props){
     const roomKey = useSelector((state) => state.key)
     const clients = useSelector((state) => state.clients)
     const username = useSelector((state) => state.username)
-
+    const userId = useSelector((state) => state.userId)
+    console.log(userId);
     const [clientList, setClientList] = useState(initialClients)
     const [messageInput, setMessageInput] = useState('')
     let navigate = useNavigate()
@@ -25,8 +26,9 @@ function RoomPage(props){
           }
         })
       },[])
+      function checkList(){
       console.log(clientList);
-
+      }
       
     // const foundRoom = await Room.findOne({where: {roomKey}})
     // let allPlayers = foundRoom.players
@@ -52,7 +54,8 @@ function RoomPage(props){
         <br>
         </br>
         Roomkey is: {roomKey}
-        <button onClick={leaveRoom({})}>Leave Room</button>
+        <button onClick={()=>leaveRoom({roomKey}) }>Leave Room</button>
+        <button onClick={checkList}>Check list</button>
         </div>
     )
 }
