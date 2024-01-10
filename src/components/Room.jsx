@@ -4,24 +4,20 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 // import {Room} from '../../server/model.js'
-function RoomPage(){
+function RoomPage(props){
+    const {sendMsg, clientList: initialClients, leaveRoom} = props
+
     const roomKey = useSelector((state) => state.key)
     const clients = useSelector((state) => state.clients)
     const username = useSelector((state) => state.username)
-    const [clientList, setClientList] = useState([])
+
+    const [clientList, setClientList] = useState(initialClients)
+    const [messageInput, setMessageInput] = useState('')
     let navigate = useNavigate()
   //  const foundRoom = await Room.findOne({where: {roomKey}})
     // let navigate = useNavigate()
-    const getClients = async () => {
-        // console.log(roomKey);
-        let res =  await axios.post('http://localhost:5555/api/clients', {roomKey})
-        console.log(res.data);
-        let allClients = res.data.foundRoom
-        setClientList(allClients)
-        console.log(clientList);
-    }
+
     useEffect(() => {
-        getClients()
         axios.get('/api/check')
         .then(res => {
           if(!res.data.success){
@@ -29,19 +25,34 @@ function RoomPage(){
           }
         })
       },[])
+      console.log(clientList);
 
+      
     // const foundRoom = await Room.findOne({where: {roomKey}})
     // let allPlayers = foundRoom.players
-    
     return(
         <div>
-        <button onClick={()=>getClients()}>getClients</button>
+        <ul>
+          {clientList.map((client) => {
+            return(
+              <li key={client.userId}>
+              {client.username}
+            </li>
+            )
+          })}        
+        </ul>
+        <div className="input-block">
+          <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
+          <button onClick={sendMsg}>
+            Send message
+          </button>
+      </div>
         <br></br>
         {username}
         <br>
         </br>
         Roomkey is: {roomKey}
-        
+        <button onClick={leaveRoom({})}>Leave Room</button>
         </div>
     )
 }

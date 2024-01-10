@@ -45,11 +45,13 @@ const handlerFunctions = {
         const {roomKey} = req.body
         // console.log(req.body);
         const foundRoom = await Room.findOne({
-            where: {roomKey: roomKey}
+            where: {roomKey: roomKey},
+            include: {model:User}
+        
         })
-        const players = foundRoom.Users
-        console.log(players);
-        res.send(players)
+        let list = foundRoom.users.map((user) => user)
+        console.log(list);
+        res.send(list)
     }
    
     

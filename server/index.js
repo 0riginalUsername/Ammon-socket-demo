@@ -8,7 +8,7 @@ import handlerFunctions from './controller.js'
 import ViteExpress from 'vite-express'
 import {Room, User} from './model.js'
 
-const {login, register, checkSession, getClients} = handlerFunctions
+const {login, register, checkSession} = handlerFunctions
 
 
 const app = express()
@@ -22,7 +22,7 @@ app.use(express.json())
 app.get('/api/check', checkSession)
 app.post('/api/auth', login)
 app.post('/api/newuser', register)
-app.post('/api/clients', getClients)
+// app.post('/api/clients', getClients)
 
 
 const server = ViteExpress.listen(app, port, () => console.log(`Server running on http://localhost:${port}`))
@@ -40,7 +40,19 @@ function makeId() {
   }
   return result;
 }
+const getClients = async (roomKey) => {
+  // console.log(roomKey);
+  
+  const foundRoom = await Room.findOne({
+    where: {roomKey: roomKey},
+    include: {model:User}
 
+})
+  let list = foundRoom.users.map((user) => user)
+  
+  return list
+  
+}
 
 
 
@@ -126,6 +138,13 @@ wss.on('connection', (ws) => {
         //   console.log(rooms.users.clients);
       // clients[id].send(JSON.stringify({roomId}))
     } else if (message.joinRoomReq) {
+      if(!message.joinRoomReq.username){
+        wss.clients.forEach((client) => {
+          client.send(JSON.stringify({connectFail:true}))
+        })
+        return
+      }
+
 
         // console.log(message.joinRoomReq.joinKey);
         console.log(globalRooms);
@@ -135,19 +154,35 @@ wss.on('connection', (ws) => {
           {roomKey: joinKey}})
         console.log(foundRoom);
         if(foundRoom.roomKey === joinKey){
-          
+          const foundUser = await User.findOne({
+            where: {username}
+          })
+          await foundRoom.addUser(foundUser)
+          foundRoom.save()
+          let allUsers = await getClients(joinKey)
+          console.log('users found!:', allUsers);
           // let currentRoom = globalRooms[joinKey]
           console.log('joined room!');
           // currentRoom.usernames.push(username)
           
           wss.clients.forEach((client) => {
-            client.send(JSON.stringify({joinRoomSuccess: true, joinKey}))
+            client.send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers}))
           })
         }
         
      
         else{console.log('wrong key stupid!');}
         
+    }
+    if(message.leaveRoom){
+      let {userId, roomKey} = message.leaveRoom
+      console.log(userId, roomKey);
+      // let foundRoom = await Room.findOne({where:{roomKey}})
+      // let foundUser = await User.findByPk(userId)
+      // foundRoom.removeUser(foundUser)
+      // foundRoom.save()
+      // console.log(foundRoom);
+      console.log('hit');
     }
     //   const room = rooms[message.joinRoom.key]
 
@@ -172,6 +207,7 @@ wss.on('connection', (ws) => {
     });
     }
 
+    
 
     
   })

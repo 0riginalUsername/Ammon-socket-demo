@@ -3,6 +3,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
+import Room from './Room.jsx'
 let ws
 export default function Home({count}) {
   let navigate = useNavigate()
@@ -22,7 +23,7 @@ export default function Home({count}) {
   const [messages, setMessages] = useState([])
   const [messageInput, setMessageInput] = useState('')
   const [roomName, setRoomName] = useState('')
-  
+  const [joinStatus, setJoinStatus] = useState(false)
   const [joinKey, setJoinKey] = useState('')
   const username = useSelector((state) => state.username)
   
@@ -80,7 +81,9 @@ export default function Home({count}) {
         setMessages([...messages, data.msg])
       }
       ;
-      // console.log(data.data);
+      if(data.connectFail){
+        alert('connection failed, no user found!')
+      }
       if(data.roomKey){
         let roomKey = data.roomKey
         // console.log(roomKey);
@@ -96,10 +99,13 @@ export default function Home({count}) {
       }
       if(data.joinRoomSuccess){
         setRoomKey(data.joinKey)
-        navigate('/room')
+        setJoinStatus(true)
 
       }
-      
+      if(data.allUsers){
+        setClientList(...clientList, data.allUsers)
+        console.log(data.allUsers);
+      }
       
     })
     
@@ -141,21 +147,24 @@ export default function Home({count}) {
     
     //Send message to websocket server to create room.
     }
-
+    const leaveRoom = (props) => {
+      let {userId, roomKey} = props
+      const data = {leaveRoom: {userId, roomKey}}
+      
+      ws.send(JSON.stringify(data))
+    }
     const login = () => {
       navigate('/login')
     }
     
-const mappedClients = clientList.map((client, index) => {
-  return <li key={index}>{client}</li>
-})
+
 const mappedMessages = messages.map((msg, index) => {
     return <p key={index}>{msg}</p>
   })
   
   
   
-  
+  if(!joinStatus){
   return (
     <main>
       {/* <h3>{roomKey}</h3> */}
@@ -190,9 +199,15 @@ const mappedMessages = messages.map((msg, index) => {
         </button>
 
       </div>
-      <div>{mappedClients}</div>
+      {/* <div>{mappedClients}</div> */}
       <div>{mappedMessages}</div>
     </main>
   )
+    }
+  if(joinStatus){
+    return(
+    <Room sendMsg={sendMsg} clientList={clientList} leaveRoom={leaveRoom}/>
+    )
+  }
 }
 
