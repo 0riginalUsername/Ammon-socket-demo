@@ -88,7 +88,7 @@ Chat.init(
             allowNull: false
         },
         
-        messages: {
+        message: {
             type: DataTypes.STRING,
             allowNull: false
         }
@@ -100,5 +100,5 @@ Chat.init(
 
 User.belongsToMany(Room, {through: "players"})
 Room.belongsToMany(User, {through: "players"})
-Chat.hasMany(Room, {foreignKey: 'roomId'})
-Room.belongsTo(Chat, {foreignKey: 'roomId'})
+Room.hasMany(Chat, {foreignKey: 'roomId'})
+Chat.belongsTo(Room, {foreignKey: 'roomId'})

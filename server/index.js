@@ -6,7 +6,7 @@ import {v4 as uuidv4} from 'uuid'
 import session from 'express-session'
 import handlerFunctions from './controller.js'
 import ViteExpress from 'vite-express'
-import {Room, User} from './model.js'
+import {Room, User, Chat} from './model.js'
 
 const {login, register, checkSession} = handlerFunctions
 
@@ -90,9 +90,21 @@ wss.on('connection', (ws) => {
       //  const message = isBinary? JSON.parse(data):data
       
       const message = JSON.parse(data)
+      console.log(message);
       if(message.msg){
           console.log('Recieved message =>', message.msg)
+          let roomkey = message.msg.roomKey
+          const foundRoom = await Room.findOne({
+            where: {roomKey: roomkey},
+          })
+          let newChat = await Chat.create({message: message.msg.message, roomId: foundRoom.roomId})
+          foundRoom.addChat(newChat)
+          let foundChat = await Chat.findAll({where: {roomId: foundRoom.roomId}})
           
+          console.log('Roomkey: ', foundChat);
+          wss.clients.forEach((client) => {
+            client.send(JSON.stringify({msg: foundChat}))
+          })
         } 
         // console.dir(message, {depth: null})
         if (message.createRoom) {
@@ -154,6 +166,12 @@ wss.on('connection', (ws) => {
         let foundRoom = await Room.findOne({where:
           {roomKey: joinKey}})
         console.log(foundRoom);
+        if(!foundRoom){
+          wss.clients.forEach((client) => {
+            client.send(JSON.stringify({joinRoomSuccess: false}))
+          })
+          return
+        }
         if(foundRoom.roomKey === joinKey){
           const foundUser = await User.findOne({
             where: {username}
@@ -165,9 +183,9 @@ wss.on('connection', (ws) => {
           // let currentRoom = globalRooms[joinKey]
           console.log('joined room!');
           // currentRoom.usernames.push(username)
-          
+          let foundChat = await Chat.findAll({where: {roomId: foundRoom.roomId}})
           wss.clients.forEach((client) => {
-            client.send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers}))
+            client.send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers, messages: foundChat}))
           })
         }
         
@@ -200,16 +218,7 @@ wss.on('connection', (ws) => {
     //   }
     // } 
     else if (message.users) {
-      ;
-    } else if (message.msg){
-      console.log('sent message');
-      wss.clients.forEach((client) => {
-        //   console.log(client.readyState);
-        if (client.readyState === WebSocket.OPEN) {
-            // console.log('hit');
-            client.send(JSON.stringify(message));
-        } 
-    });
+
     }
 
     

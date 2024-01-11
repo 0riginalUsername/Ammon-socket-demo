@@ -28,7 +28,7 @@ export default function Home({count}) {
   const username = useSelector((state) => state.username)
   const userId = useSelector((state) => state.userId)
   const roomKey = useSelector((state) => state.roomKey)
-  console.log('userID is:', userId);
+ 
 
   
   
@@ -79,8 +79,8 @@ export default function Home({count}) {
       // console.log(data);
       let success = ''
       if(data.msg){
-        console.log('message recieved in DOM');
-        setMessages([...messages, data.msg])
+        console.log(data.msg);
+        setMessages(data.msg)
       }
       ;
       if(data.connectFail){
@@ -102,10 +102,14 @@ export default function Home({count}) {
       if(data.joinRoomSuccess){
         setRoomKey(data.joinKey)
         setJoinStatus(true)
-
+        setMessages(data.messages)
+      }
+      if(data.joinRoomSuccess === false){
+        alert('join room failed, no room found!')
       }
       if(data.allUsers){
         setClientList(...clientList, data.allUsers, data.allUsers.newRoom)
+
         console.log('hit2');
       }
       if(data.updatedRoom){
@@ -121,7 +125,7 @@ export default function Home({count}) {
   
 
 
-  const sendMsg = (message) =>{
+  const sendMsg = (message, roomKey) =>{
     if(!message){
       console.log('no message input');
       return
@@ -129,8 +133,8 @@ export default function Home({count}) {
         setMessages([...messages, 'No Websocket connection'])
         return
       }
-      ws.send(JSON.stringify({msg: message}))
-      console.log('hit');
+      ws.send(JSON.stringify({msg:{message, roomKey} }))
+      console.log({msg:{message, roomKey}});
       
     }
 
@@ -152,7 +156,7 @@ export default function Home({count}) {
       const data = {createRoom:{name: roomName, username}}
       
       ws.send(JSON.stringify(data))
-      navigate('/room')
+      setJoinStatus(true)
     
     //Send message to websocket server to create room.
     }
@@ -168,10 +172,7 @@ export default function Home({count}) {
     }
     
 
-const mappedMessages = messages.map((msg, index) => {
-    return <p key={index}>{msg}</p>
-  })
-  
+
   
   
   if(!joinStatus){
