@@ -92,10 +92,11 @@ wss.on('connection', (ws) => {
       const message = JSON.parse(data)
       if(message.msg){
           console.log('Recieved message =>', message.msg)
+          
         } 
         // console.dir(message, {depth: null})
         if (message.createRoom) {
-      
+
             
             let roomKey = makeId()
             // console.log(message.createRoom.username);
@@ -176,7 +177,7 @@ wss.on('connection', (ws) => {
     }
     if(message.leaveRoom){
       let {userId, roomKey} = message.leaveRoom
-      console.log(userId, roomKey);
+      // console.log(userId, roomKey);
       let foundRoom = await Room.findOne({where:{roomKey}})
       let foundUser = await User.findByPk(userId)
       foundRoom.removeUser(foundUser)

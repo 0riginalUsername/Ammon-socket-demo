@@ -21,7 +21,7 @@ export default function Home({count}) {
   
   const [clientList, setClientList] = useState([])
   const [messages, setMessages] = useState([])
-  const [messageInput, setMessageInput] = useState('')
+  
   const [roomName, setRoomName] = useState('')
   const [joinStatus, setJoinStatus] = useState(false)
   const [joinKey, setJoinKey] = useState('')
@@ -76,7 +76,7 @@ export default function Home({count}) {
     
    ws.addEventListener('message', (msg) => { 
       const data = JSON.parse(msg.data);
-      console.log(data);
+      // console.log(data);
       let success = ''
       if(data.msg){
         console.log('message recieved in DOM');
@@ -106,11 +106,11 @@ export default function Home({count}) {
       }
       if(data.allUsers){
         setClientList(...clientList, data.allUsers, data.allUsers.newRoom)
-        console.log(data.allUsers);
+        console.log('hit2');
       }
       if(data.updatedRoom){
         setClientList(data.updatedRoom)
-        console.log(clientList);
+        console.log(data.updatedRoom);
       }
       
     })
@@ -121,16 +121,16 @@ export default function Home({count}) {
   
 
 
-  const sendMsg = () =>{
-    
-    if(!messageInput){
+  const sendMsg = (message) =>{
+    if(!message){
+      console.log('no message input');
       return
       } else if (!ws) {
         setMessages([...messages, 'No Websocket connection'])
         return
       }
-      ws.send(JSON.stringify({msg: messageInput}))
-      // console.log({msg: JSON.stringify(messageInput)});
+      ws.send(JSON.stringify({msg: message}))
+      console.log('hit');
       
     }
 
@@ -161,6 +161,7 @@ export default function Home({count}) {
       const data = {leaveRoom: {userId, roomKey}}
       console.log(userId);
       ws.send(JSON.stringify(data))
+      setJoinStatus(false)
     }
     const login = () => {
       navigate('/login')
@@ -176,17 +177,9 @@ const mappedMessages = messages.map((msg, index) => {
   if(!joinStatus){
   return (
     <main>
-      {/* <h3>{roomKey}</h3> */}
       <h1>Welcome to the chat!</h1>
-      {/* <Link to="/room">
-        <button onClick={() => requestRoomCreation()}>Create Room</button>
-      </Link> */}
-      <div className="input-block">
-          <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
-          <button onClick={sendMsg}>
-            Send message
-          </button>
-      </div>
+      
+      
       <div className="room-block">
           <input value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
           
@@ -208,14 +201,14 @@ const mappedMessages = messages.map((msg, index) => {
         </button>
 
       </div>
-      {/* <div>{mappedClients}</div> */}
-      <div>{mappedMessages}</div>
+      
+      {/* <div>{mappedMessages}</div> */}
     </main>
   )
     }
   if(joinStatus){
     return(
-    <Room sendMsg={sendMsg} clientList={clientList} leaveRoom={leaveRoom}/>
+    <Room sendMsg={sendMsg} clientList={clientList} leaveRoom={leaveRoom} messages={messages}/>
     )
   }
 }

@@ -14,6 +14,11 @@ export class Room extends Model {
         return this.toJSON()
     }
 }
+export class Chat extends Model {
+    [util.inspect.custom]() {
+        return this.toJSON()
+    }
+}
 
 User.init(
     {
@@ -70,5 +75,30 @@ Room.init(
     }
     
 )
+
+Chat.init(
+    {
+        chatId: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        roomId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        
+        messages: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
+    },{
+        modelName: "chats",
+        sequelize: db
+    }
+)
+
 User.belongsToMany(Room, {through: "players"})
 Room.belongsToMany(User, {through: "players"})
+Chat.hasMany(Room, {foreignKey: 'roomId'})
+Room.belongsTo(Chat, {foreignKey: 'roomId'})

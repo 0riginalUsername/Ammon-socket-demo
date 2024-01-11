@@ -5,16 +5,15 @@ import axios from 'axios'
 
 // import {Room} from '../../server/model.js'
 function RoomPage(props){
-    const {sendMsg, clientList: initialClients, leaveRoom} = props
+    const {sendMsg, clientList, leaveRoom, messages} = props
 
     const roomKey = useSelector((state) => state.key)
     const clients = useSelector((state) => state.clients)
     const username = useSelector((state) => state.username)
     const userId = useSelector((state) => state.userId)
-    console.log(userId);
-    const [clientList, setClientList] = useState(initialClients)
     const [messageInput, setMessageInput] = useState('')
     let navigate = useNavigate()
+    console.log(messageInput);
   //  const foundRoom = await Room.findOne({where: {roomKey}})
     // let navigate = useNavigate()
 
@@ -25,13 +24,15 @@ function RoomPage(props){
             navigate('/')
           }
         })
-      },[])
-      function checkList(){
+    },[])
+
+    function checkList(){
       console.log(clientList);
       }
       
-    // const foundRoom = await Room.findOne({where: {roomKey}})
-    // let allPlayers = foundRoom.players
+      const mappedMessages = messages.map((msg, index) => {
+        return <p key={index}>{msg}</p>
+      })
     return(
         <div>
         <ul>
@@ -45,10 +46,11 @@ function RoomPage(props){
         </ul>
         <div className="input-block">
           <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
-          <button onClick={sendMsg}>
+          <button onClick={()=> sendMsg(messageInput)}>
             Send message
           </button>
       </div>
+          {mappedMessages}
         <br></br>
         {username}
         <br>
