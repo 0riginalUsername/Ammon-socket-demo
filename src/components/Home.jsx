@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
 import Room from './Room.jsx'
+import Toast from 'react-bootstrap/Toast'
+import ToastContainer from 'react-bootstrap/ToastContainer'
+import Button from 'react-bootstrap/Button'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import ToggleButton from 'react-bootstrap/ToggleButton'
+
 let ws
 export default function Home({count}) {
   let navigate = useNavigate()
@@ -25,6 +31,7 @@ export default function Home({count}) {
   const [roomName, setRoomName] = useState('')
   const [joinStatus, setJoinStatus] = useState(false)
   const [joinKey, setJoinKey] = useState('')
+  const [showA, setShowA] = useState(false)
   const username = useSelector((state) => state.username)
   const userId = useSelector((state) => state.userId)
   const roomKey = useSelector((state) => state.roomKey)
@@ -167,17 +174,51 @@ export default function Home({count}) {
       ws.send(JSON.stringify(data))
       setJoinStatus(false)
     }
-    const login = () => {
-      navigate('/login')
+    const deleteAcc = async () => {
+      await axios.post('http://localhost:5555/api/deleteuser', {userId})
+      
     }
     
+    const navHome = () => {
+      alert('account deleted, logging out...')
+      navigate('/')
+    }
+    const runBoth = () => {
+      navHome()
+      deleteAcc()
+    }
 
-
-  
-  
+    const [checked, setChecked] = useState(false);
+    const toggleCheck= () => setChecked(!checked)
   if(!joinStatus){
   return (
     <main>
+      <link rel="stylesheet" href="./App.css"></link>
+      <ToggleButton
+        className="accountbtn"
+        id="toggle-check"
+        type="checkbox"
+        variant="outline-primary"
+        checked={checked}
+        value="1"
+        onChange={(e) => setChecked(e.currentTarget.checked)}
+        position="top-end"
+      >
+        Checked
+      </ToggleButton>
+      <ToastContainer
+        position="top-end"
+       > 
+        <Toast show={checked} onClose={toggleCheck}>
+          <Toast.Header>
+            {username}
+          </Toast.Header>
+          <Toast.Body>
+            <Button onClick={runBoth}>Delete Account</Button>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+      <br></br>
       <h1>Welcome to the chat!</h1>
       
       

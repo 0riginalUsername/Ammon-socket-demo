@@ -51,6 +51,16 @@ const handlerFunctions = {
         let list = foundRoom.users.map((user) => user)
         console.log(list);
         res.send(list)
+    },
+    deleteUser: async(req, res) => {
+        const {userId} = req.body
+        const foundUser = await User.findOne({
+            where: {userId}
+        })
+        User.destroy({
+            where: {userId}
+        })
+        console.log('USER ',foundUser.username,' DELETED!');
     }
     
    

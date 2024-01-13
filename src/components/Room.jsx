@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
+import Toast from 'react-bootstrap/Toast'
 function RoomPage(props){
     const {sendMsg, clientList, leaveRoom, messages} = props
     console.log(messages);
@@ -35,6 +35,7 @@ function RoomPage(props){
       
     return(
         <div>
+        
         <ul>
           {clientList.map((client) => {
             return(

@@ -7,7 +7,7 @@ import {Provider} from 'react-redux'
 import Room from './components/Room.jsx'
 import store from './store.js'
 import App from './App.jsx'
-
+import 'bootstrap/dist/css/bootstrap.css'
 
 
 
