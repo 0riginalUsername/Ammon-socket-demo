@@ -8,7 +8,7 @@ import handlerFunctions from './controller.js'
 import ViteExpress from 'vite-express'
 import {Room, User, Chat} from './model.js'
 
-const {login, register, checkSession, deleteUser} = handlerFunctions
+const {login, register, checkSession, deleteUser, editUser} = handlerFunctions
 
 
 const app = express()
@@ -23,7 +23,7 @@ app.get('/api/check', checkSession)
 app.post('/api/auth', login)
 app.post('/api/newuser', register)
 app.post('/api/deleteuser', deleteUser)
-// app.post('/api/clients', getClients)
+app.post('/api/edit', editUser)
 
 
 const server = ViteExpress.listen(app, port, () => console.log(`Server running on http://localhost:${port}`))

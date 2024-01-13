@@ -60,40 +60,42 @@ export default function LandingPage() {
   if (regState === true) {
     return (
       <>
+      
       <div>Enter your credentials </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onLogin(e, {
-              username: usernameValue,
-              password: passwordValue,
-            });
-          }}
-        >
-          <label htmlFor="username">Username</label>
-          <input
-            name="username"
-            id="username"
-            type="text"
-            required
-            onChange={(e) => setUsernameValue(e.target.value)}
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            name="password"
-            id="password"
-            type="text"
-            required
-            onChange={(e) => setPasswordValue(e.target.value)}
-          />
-          <button type="submit">Log in</button>
-        </form>
-        <button onClick={toggleReg}>Register</button>
-        
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onLogin(e, {
+            username: usernameValue,
+            password: passwordValue,
+          });
+        }}
+      >
+        <label htmlFor="username">Username</label>
+        <input
+          name="username"
+          id="username"
+          type="text"
+          required
+          maxLength={15} // Limit username to 20 characters
+          onChange={(e) => setUsernameValue(e.target.value)}
+        />
+        <label htmlFor="password">Password</label>
+        <input
+          name="password"
+          id="password"
+          type="text"
+          required
+          maxLength={15} // Limit password to 20 characters
+          onChange={(e) => setPasswordValue(e.target.value)}
+        />
+        <button type="submit">Log in</button>
+      </form>
+      <button onClick={toggleReg}>Register</button>
       </>
-    );
-  } else {
-    return (
+      );
+      } else {
+      return (
       <>
       <div>Register here </div>
       <form
@@ -111,6 +113,7 @@ export default function LandingPage() {
           id="username"
           type="text"
           required
+          maxLength={15} // Limit username to 20 characters
           onChange={(e) => setUsernameValue(e.target.value)}
         />
         <label htmlFor="password">Password</label>
@@ -119,6 +122,7 @@ export default function LandingPage() {
           id="password"
           type="text"
           required
+          maxLength={15} // Limit username to 20 characters
           onChange={(e) => setPasswordValue(e.target.value)}
         />
         <button type="submit">

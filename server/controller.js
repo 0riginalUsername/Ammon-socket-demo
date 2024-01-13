@@ -28,8 +28,14 @@ const handlerFunctions = {
 
         else{
             await User.create({username, password})
-            console.log(`registered ${username}!` );
-            res.send({success: true})
+            .then((user) => {
+                `registered ${user}!`
+            })
+            .catch((err) => console.log('error: ',err))
+
+
+            console.log( );
+            res.send({success: true})   
         }
     },
     checkSession: (req, res) => {
@@ -61,7 +67,15 @@ const handlerFunctions = {
             where: {userId}
         })
         console.log('USER ',foundUser.username,' DELETED!');
-    }
+    },
+    editUser: async(req, res) => {
+        const {userId, username, password} = req.body
+        const foundUser = await User.findOne({
+            where: {userId}
+        })
+        let newUser =  await foundUser.update({username, password})
+        console.log('user credentials changesd to ', newUser);
+    },
     
    
     

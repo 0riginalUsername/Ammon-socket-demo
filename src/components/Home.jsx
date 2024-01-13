@@ -32,6 +32,10 @@ export default function Home({count}) {
   const [joinStatus, setJoinStatus] = useState(false)
   const [joinKey, setJoinKey] = useState('')
   const [showA, setShowA] = useState(false)
+  const [usernameValue, setUsernameValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
+
+
   const username = useSelector((state) => state.username)
   const userId = useSelector((state) => state.userId)
   const roomKey = useSelector((state) => state.roomKey)
@@ -188,6 +192,27 @@ export default function Home({count}) {
       deleteAcc()
     }
 
+    const onReg = async (e, formData) => {
+      e.preventDefault();
+      console.log('userID is:', userId);
+      const {username, password} = formData
+
+      let data = {
+        username,
+        password,
+        userId
+      }
+      console.log("registered.");
+      const res = await axios.post(`http://localhost:5555/api/edit`, data);
+  
+      if (!res.data.success) {
+        alert("Username is taken!");
+      } else {
+          alert('Account created')
+          toggleReg()
+      }
+    };
+
     const [checked, setChecked] = useState(false);
     const toggleCheck= () => setChecked(!checked)
   if(!joinStatus){
@@ -214,6 +239,38 @@ export default function Home({count}) {
             {username}
           </Toast.Header>
           <Toast.Body>
+          <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onReg(e, {
+            username: usernameValue,
+            password: passwordValue,
+          });
+        }}
+      >
+        <label htmlFor="username">Username</label>
+        <input
+          name="username"
+          id="username"
+          type="text"
+          required
+          maxLength={15} // Limit username to 20 characters
+          onChange={(e) => setUsernameValue(e.target.value)}
+        />
+        <label htmlFor="password">Password</label>
+        <input
+          name="password"
+          id="password"
+          type="text"
+          required
+          maxLength={15} // Limit username to 20 characters
+          onChange={(e) => setPasswordValue(e.target.value)}
+        />
+        <button type="submit">
+          Register
+        </button>
+        <button >Login</button>
+      </form>
             <Button onClick={runBoth}>Delete Account</Button>
           </Toast.Body>
         </Toast>
