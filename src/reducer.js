@@ -13,6 +13,8 @@ const initialState = { key: ''}
             return {...state, usernames: action.payload}
         case 'getUserId':
             return {...state, userId: action.payload}
+        case 'joinState':
+            return {...state, joinState: action.payload}
         default:
             return state
         

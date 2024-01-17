@@ -7,8 +7,8 @@ import session from 'express-session'
 import handlerFunctions from './controller.js'
 import ViteExpress from 'vite-express'
 import {Room, User, Chat} from './model.js'
-
-const {login, register, checkSession, deleteUser, editUser} = handlerFunctions
+import {useSelector} from 'react-redux'
+const {login, register, checkSession, deleteUser, editUser, getRooms, deleteRoom} = handlerFunctions
 
 
 const app = express()
@@ -24,8 +24,8 @@ app.post('/api/auth', login)
 app.post('/api/newuser', register)
 app.post('/api/deleteuser', deleteUser)
 app.post('/api/edit', editUser)
-
-
+app.post('/api/getrooms', getRooms)
+app.post('/api/deleteroom', deleteRoom)
 const server = ViteExpress.listen(app, port, () => console.log(`Server running on http://localhost:${port}`))
 const wss = new WebSocketServer({ server: server, path: '/api/ws' })
 
@@ -109,17 +109,20 @@ wss.on('connection', (ws) => {
         } 
         // console.dir(message, {depth: null})
         if (message.createRoom) {
-
+            let {username, userId, name} = message.createRoom
             
             let roomKey = makeId()
-            // console.log(message.createRoom.username);
-            let username = message.createRoom.username
+             
+            
             let room = {
                 roomKey,
-                name: message.createRoom.name,
-                host: username,
+                name,
+                host: userId,
                 players: [username]
               }
+            if(!name){
+              room.name = `${username}'s room`
+            }
               // write sequelize here
               const newRoom = await Room.create(room)
               const foundUser = await User.findOne({
@@ -132,7 +135,7 @@ wss.on('connection', (ws) => {
               console.log(newRoom);
               
               wss.clients.forEach((client) => {
-                client.send(JSON.stringify(newRoom))
+                client.send(JSON.stringify({newRoom}))
               })
         // rooms.id= roomId
         // rooms.key = key

@@ -61,8 +61,9 @@ export default function LandingPage() {
     return (
       <>
       
-      <div>Enter your credentials </div>
+      <div>ENTER YOUR CREDENTIALS </div>
       <form
+        className="bottom"
         onSubmit={(e) => {
           e.preventDefault();
           onLogin(e, {
@@ -71,33 +72,35 @@ export default function LandingPage() {
           });
         }}
       >
-        <label htmlFor="username">Username</label>
+        <label className="bottom" htmlFor="username">USERNAME</label>
         <input
+          className="bottom"
           name="username"
           id="username"
           type="text"
           required
           maxLength={15} // Limit username to 20 characters
-          onChange={(e) => setUsernameValue(e.target.value)}
+          onChange={(e) => setUsernameValue(e.target.value.toUpperCase())}
+          value={usernameValue}
         />
-        <label htmlFor="password">Password</label>
-        <input
+        <label className="bottom" htmlFor="password">PASSWORD</label>
+        <input className="bottom"
           name="password"
           id="password"
-          type="text"
+          type="password"
           required
           maxLength={15} // Limit password to 20 characters
-          onChange={(e) => setPasswordValue(e.target.value)}
+          onChange={(e) => setPasswordValue(e.target.value) }
         />
-        <button type="submit">Log in</button>
+        <button className="bottom"type="submit">LOG IN</button>
       </form>
-      <button onClick={toggleReg}>Register</button>
+      <button className="bottom" onClick={toggleReg}>REGISTER</button>
       </>
       );
       } else {
       return (
       <>
-      <div>Register here </div>
+      <div>CREATE NEW ACCOUNT</div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -107,28 +110,29 @@ export default function LandingPage() {
           });
         }}
       >
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">USERNAME</label>
         <input
           name="username"
           id="username"
           type="text"
           required
           maxLength={15} // Limit username to 20 characters
-          onChange={(e) => setUsernameValue(e.target.value)}
+          onChange={(e) => setUsernameValue(e.target.value.toUpperCase)}
+          value={usernameValue}
         />
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">PASSWORD</label>
         <input
           name="password"
           id="password"
-          type="text"
+          type="password"
           required
           maxLength={15} // Limit username to 20 characters
           onChange={(e) => setPasswordValue(e.target.value)}
         />
         <button type="submit">
-          Register
+          REGISTER
         </button>
-        <button onClick={toggleReg}>Login</button>
+        <button onClick={toggleReg}>LOGIN</button>
       </form>
       </>
     );

@@ -76,6 +76,35 @@ const handlerFunctions = {
         let newUser =  await foundUser.update({username, password})
         console.log('user credentials changesd to ', newUser);
     },
+    getRooms: async (req, res) => {
+        
+        const { userId } = req.body;
+        if(!userId){
+            return res.send({success: false, allRooms: []})
+        }
+        else{
+        const allRooms = await Room.findAll({
+            include: {
+                model: User,
+                where: { userId: userId }
+            }
+        });
+        // console.log(allRooms);
+
+        console.log(allRooms);
+        res.send(allRooms)
+    }
+    },
+    deleteRoom: async(req, res) => {
+        const {roomId} = req.body
+        const foundRoom = await Room.findOne({
+            where: {roomId}
+        })
+        Room.destroy({
+            where: {roomId}
+        })
+        console.log('ROOM ',foundRoom.name,' DELETED!');
+    }
     
    
     

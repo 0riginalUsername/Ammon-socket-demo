@@ -1,9 +1,0 @@
-@import '~bootstrap/dist/css/bootstrap.min.css';
-
-.accountbtn{
-  position:absolute;
-  color: green;
-  top: 0;
-  right: 0;
-  padding: 5px
-}

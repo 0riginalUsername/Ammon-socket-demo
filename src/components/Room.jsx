@@ -1,17 +1,24 @@
 import React, {useState, useEffect} from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
 function RoomPage(props){
-    const {sendMsg, clientList, leaveRoom, messages} = props
+    const dispatch = useDispatch()
+    const {sendMsg, clientList, leaveRoom, messages, roomName} = props
     console.log(messages);
     const roomKey = useSelector((state) => state.key)
     const clients = useSelector((state) => state.clients)
     const username = useSelector((state) => state.username)
     const userId = useSelector((state) => state.userId)
+    const joinStatus = useSelector((state) => state.joinStatus)
     const [messageInput, setMessageInput] = useState('')
     let navigate = useNavigate()
+
+    function setJoinState(joinState){
+    
+      dispatch({type: 'joinState', payload: joinState})
+    }
 
     useEffect(() => {
         axios.get('/api/check')
@@ -22,8 +29,8 @@ function RoomPage(props){
         })
     },[])
 
-    function checkList(){
-      console.log(clientList);
+    function goHome(){
+      setJoinState(false)
       }
       
       
@@ -32,10 +39,10 @@ function RoomPage(props){
         return <p key={index}>{msg.message}</p>
       })
       
-      
+      console.log(roomName);
     return(
         <div>
-        
+        {roomName}
         <ul>
           {clientList.map((client) => {
             return(
@@ -46,9 +53,9 @@ function RoomPage(props){
           })}        
         </ul>
         <div className="input-block">
-          <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
+          <input value={messageInput} onChange={(e) => setMessageInput(e.target.value.toUpperCase())}/>
           <button onClick={()=> sendMsg(messageInput, roomKey)}>
-            Send message
+            SEND MESSAGE
           </button>
       </div>
           {mappedMessages}
@@ -56,9 +63,9 @@ function RoomPage(props){
         {username}
         <br>
         </br>
-        Roomkey is: {roomKey}
-        <button onClick={()=>leaveRoom({roomKey}) }>Leave Room</button>
-        <button onClick={checkList}>Check list</button>
+        ROOMKEY IS: {roomKey}
+        <button onClick={()=>leaveRoom({roomKey}) }>LEAVE ROOM</button>
+        <button onClick={goHome}>ALL ROOMS</button>
         </div>
     )
 }

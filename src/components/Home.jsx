@@ -24,22 +24,24 @@ export default function Home({count}) {
     
     dispatch({type: 'getPlayers', payload: clients})
   }
+  function setJoinState(joinState){
+    
+    dispatch({type: 'joinState', payload: joinState})
+  }
   
   const [clientList, setClientList] = useState([])
   const [messages, setMessages] = useState([])
-  
+  const [checked, setChecked] = useState(false);
   const [roomName, setRoomName] = useState('')
-  const [joinStatus, setJoinStatus] = useState(false)
   const [joinKey, setJoinKey] = useState('')
-  const [showA, setShowA] = useState(false)
   const [usernameValue, setUsernameValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
-
+  const [allRooms, setAllRooms] = useState([])
 
   const username = useSelector((state) => state.username)
   const userId = useSelector((state) => state.userId)
   const roomKey = useSelector((state) => state.roomKey)
- 
+  const joinState = useSelector((state) => state.joinState)
 
   
   
@@ -52,25 +54,26 @@ export default function Home({count}) {
         navigate('/')
       }
     })
+    openWs()
   },[])
 
-  
+  useEffect(() => {
+    getRooms()
+  },[joinState])
   function closeConnection() {
     if (!!ws) {
       ws.close();
     }
   }
   
-  useEffect(()=> {
-    openWs()
-  }, [])
+
 
 
   function openWs (){
     
     closeConnection();
     ws = new WebSocket('ws://localhost:5555/api/ws');
-    // console.log(WebSocket);
+    
     
     ws.addEventListener('error', () => {
       setMessages([...messages,'WebSocket error']);
@@ -87,10 +90,10 @@ export default function Home({count}) {
     
    ws.addEventListener('message', (msg) => { 
       const data = JSON.parse(msg.data);
-      // console.log(data);
+      
       let success = ''
       if(data.msg){
-        console.log(data.msg);
+    
         setMessages(data.msg)
       }
       ;
@@ -99,21 +102,22 @@ export default function Home({count}) {
       }
       if(data.roomKey){
         let roomKey = data.roomKey
-        // console.log(roomKey);
-        // setRoomkey([`room key is: `, roomKey])
+        
         setRoomKey(roomKey)
       }
 
       if(data.users){
-        // console.log(data);
+        
         let allClients = data.users
-        // console.log(allClients);
+        
         setClients(allClients)
       }
       if(data.joinRoomSuccess){
+        // console.log(data.joinRoomSuccess);
         setRoomKey(data.joinKey)
-        setJoinStatus(true)
         setMessages(data.messages)
+        setRoomName(data.roomName)
+        setJoinState(true)
       }
       if(data.joinRoomSuccess === false){
         alert('join room failed, no room found!')
@@ -121,11 +125,10 @@ export default function Home({count}) {
       if(data.allUsers){
         setClientList(...clientList, data.allUsers, data.allUsers.newRoom)
 
-        console.log('hit2');
+        
       }
       if(data.updatedRoom){
         setClientList(data.updatedRoom)
-        console.log(data.updatedRoom);
       }
       
     })
@@ -145,7 +148,7 @@ export default function Home({count}) {
         return
       }
       ws.send(JSON.stringify({msg:{message, roomKey} }))
-      console.log({msg:{message, roomKey}});
+      
       
     }
 
@@ -155,28 +158,34 @@ export default function Home({count}) {
     }
     
     
-    const joinRoom = () => {
+    const joinRoom = (props) => {
+      // console.log(props);
+      if(!props){
       const data = {joinRoomReq: {username, joinKey}}
       ws.send(JSON.stringify(data))
+      } else {
+        const data = {joinRoomReq: {username, joinKey: props}}
+        ws.send(JSON.stringify(data))
+      }
     }
     const createRoom = () => {
       // const username = useSelector((state) => state.username)
       if(!username){
         return alert('user not found!')
       }
-      const data = {createRoom:{name: roomName, username}}
+      const data = {createRoom:{name: roomName, username, userId}}
       
       ws.send(JSON.stringify(data))
-      setJoinStatus(true)
+      setJoinState(true)
     
     //Send message to websocket server to create room.
     }
     const leaveRoom = (props) => {
       const {roomKey} = props
       const data = {leaveRoom: {userId, roomKey}}
-      console.log(userId);
+      
       ws.send(JSON.stringify(data))
-      setJoinStatus(false)
+      setJoinState(false)
     }
     const deleteAcc = async () => {
       await axios.post('http://localhost:5555/api/deleteuser', {userId})
@@ -194,7 +203,7 @@ export default function Home({count}) {
 
     const onReg = async (e, formData) => {
       e.preventDefault();
-      console.log('userID is:', userId);
+      
       const {username, password} = formData
 
       let data = {
@@ -202,7 +211,7 @@ export default function Home({count}) {
         password,
         userId
       }
-      console.log("registered.");
+      
       const res = await axios.post(`http://localhost:5555/api/edit`, data);
   
       if (!res.data.success) {
@@ -212,15 +221,33 @@ export default function Home({count}) {
           toggleReg()
       }
     };
-
-    const [checked, setChecked] = useState(false);
+    
     const toggleCheck= () => setChecked(!checked)
-  if(!joinStatus){
+  
+    const getRooms = async() => {
+      let res = await axios.post('http://localhost:5555/api/getrooms', {userId})
+        setAllRooms(res.data)
+    }
+
+    const deleteRoom = async() => {
+      let res = await axios.post('http://localhost:5555/api/deleteroom', {userId, roomKey})
+    }
+    const mappedRooms = allRooms.map((room, index) => {
+      console.log(room.host, userId);
+      return (<div key={index} onClick={()=> joinRoom(room.roomKey)}>
+      <p>Name: {room.name} Roomkey:{room.roomKey}</p>
+      {room.host === userId && <button onClick={() => deleteRoom(room.roomKey)}>Delete room</button>}
+      </div>
+      )
+    })
+  
+    console.log(allRooms);
+  if(!joinState){
   return (
     <main>
-      <link rel="stylesheet" href="./App.css"></link>
+      {mappedRooms}
       <ToggleButton
-        className="accountbtn"
+        className="account-btn"
         id="toggle-check"
         type="checkbox"
         variant="outline-primary"
@@ -229,7 +256,7 @@ export default function Home({count}) {
         onChange={(e) => setChecked(e.currentTarget.checked)}
         position="top-end"
       >
-        Checked
+        ACCOUNT SETTINGS
       </ToggleButton>
       <ToastContainer
         position="top-end"
@@ -248,56 +275,54 @@ export default function Home({count}) {
           });
         }}
       >
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">USERNAME</label>
         <input
           name="username"
           id="username"
           type="text"
           required
           maxLength={15} // Limit username to 20 characters
-          onChange={(e) => setUsernameValue(e.target.value)}
+          onChange={(e) => setUsernameValue(e.target.value.toUpperCase())}
+          value={usernameValue}
         />
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">PASSWORD</label>
         <input
           name="password"
           id="password"
-          type="text"
+          type="password"
           required
           maxLength={15} // Limit username to 20 characters
           onChange={(e) => setPasswordValue(e.target.value)}
+          
         />
         <button type="submit">
-          Register
+          REGISTER
         </button>
-        <button >Login</button>
+        <button >LOGIN</button>
       </form>
             <Button onClick={runBoth}>Delete Account</Button>
           </Toast.Body>
         </Toast>
       </ToastContainer>
       <br></br>
-      <h1>Welcome to the chat!</h1>
+      
       
       
       <div className="room-block">
+          <button onClick={createRoom} >
+            CREATE ROOM
+          </button>
           <input value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
           
-          <button onClick={createRoom} >
-            Create Room
-          </button>
           
       </div>
 
       <div className="join-room">
+        <button onClick={() => joinRoom(joinKey)}>
+          JOIN ROOM
+        </button>
         <input value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
 
-        <button onClick={joinRoom}>
-          Join Room
-        </button>
-
-        <button onClick={openWs}>
-          WS connect
-        </button>
 
       </div>
       
@@ -305,9 +330,9 @@ export default function Home({count}) {
     </main>
   )
     }
-  if(joinStatus){
+  if(joinState){
     return(
-    <Room sendMsg={sendMsg} clientList={clientList} leaveRoom={leaveRoom} messages={messages}/>
+    <Room sendMsg={sendMsg} clientList={clientList} leaveRoom={leaveRoom} messages={messages} roomName={roomName}/>
     )
   }
 }

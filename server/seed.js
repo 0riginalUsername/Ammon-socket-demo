@@ -6,7 +6,7 @@ console.log('seeding data...');
 await db.sync({ force: true})
 const createdUsers = []
 for(let i = 1; i < 4; i++){
-    createdUsers.push({username: `user${i}`, password: 'test'})
+    createdUsers.push({username: `USER${i}`, password: 'test'})
 }
 
 const usersInDB = await Promise.all(
