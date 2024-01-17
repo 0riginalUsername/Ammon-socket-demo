@@ -1,41 +1,63 @@
 
-.account-btn{
-  position:absolute;
-  color: green;
-  top: 0;
-  right: 0;
-  padding: 5px
-}
+
 body {
   background-color: black;
   color: #1CFF11;
   font-family: 'Share Tech Mono', monospace;
   font-size: 1.5rem;
-  height: 100vh;
 }
-input {
+.user-input {
   background-color: black;
   color: #1CFF11;
   border: 0px;
   box-shadow: none !important;
   outline: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding-left: 20px;
-  padding-bottom: 0px
+  padding: 3px;
+  height: 1.5rem; 
+  width: 200px;
+  position: relative;
+  bottom: 6px;
+  
 }
 
-button {
+.btn {
   background-color: black;
   color: #1CFF11;
   border: 0px;
+  height: 1.5rem; 
+}
+.account-btn{
+  position:absolute;
+  color: green;
+  top: 0;
+  right: 0;
+  padding: 5px;
+  position: relative;
+  bottom: 0;
   display: flex;
   align-items: flex-end;
-  justify-content: flex-start;
+  flex-direction: row;
+}
+.cred {
+  position: relative;
+  top: 0;
 }
 .bottom {
+  position: relative;
+  bottom: 0;
   display: flex;
-  align-items: flex-end; /* Align items at the bottom */
-  justify-content: flex-start;
+  align-items: flex-end;
+  flex-direction: row;
+}
+.title {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding-left: 7px;
+  margin: 0;
+}
+.box {
+  height: calc(100vh - 44px);
+  display: flex;
+  width: 100vw;
 }

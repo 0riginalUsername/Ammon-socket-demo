@@ -54,6 +54,9 @@ export default function Home({count}) {
         navigate('/')
       }
     })
+    if(!userId){
+      navigate('/')
+    }
     openWs()
   },[])
 
@@ -276,7 +279,8 @@ export default function Home({count}) {
         }}
       >
         <label htmlFor="username">USERNAME</label>
-        <input
+        <input 
+          className="user-input"
           name="username"
           id="username"
           type="text"
@@ -293,7 +297,7 @@ export default function Home({count}) {
           required
           maxLength={15} // Limit username to 20 characters
           onChange={(e) => setPasswordValue(e.target.value)}
-          
+          className="user-input"
         />
         <button type="submit">
           REGISTER
@@ -305,28 +309,16 @@ export default function Home({count}) {
         </Toast>
       </ToastContainer>
       <br></br>
-      
-      
-      
-      <div className="room-block">
-          <button onClick={createRoom} >
+          <button className="btn"onClick={createRoom} >
             CREATE ROOM
           </button>
-          <input value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
-          
-          
-      </div>
-
-      <div className="join-room">
-        <button onClick={() => joinRoom(joinKey)}>
+          <input className="user-input"value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
+    
+        <button className="btn" onClick={() => joinRoom(joinKey)}>
           JOIN ROOM
         </button>
-        <input value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
+        <input className="user-input"value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
 
-
-      </div>
-      
-      {/* <div>{mappedMessages}</div> */}
     </main>
   )
     }

@@ -10,7 +10,7 @@ function App() {
 
   return (
     <BrowserRouter >
-      <p>ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</p>
+      <p className="title">ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</p>
  
       <Routes>
         <Route path='/' element={<LandingPage/>}/>
