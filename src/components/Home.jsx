@@ -236,19 +236,23 @@ export default function Home({count}) {
       let res = await axios.post('http://localhost:5555/api/deleteroom', {userId, roomKey})
     }
     const mappedRooms = allRooms.map((room, index) => {
-      console.log(room.host, userId);
-      return (<div key={index} onClick={()=> joinRoom(room.roomKey)}>
-      <p>Name: {room.name} Roomkey:{room.roomKey}</p>
-      {room.host === userId && <button onClick={() => deleteRoom(room.roomKey)}>Delete room</button>}
-      </div>
-      )
-    })
+      
+      console.log(index)
+      return (
+        
+          <div className="room-list" key={index} onClick={() => joinRoom(room.roomKey)}>
+            <p>Name: {room.name} Roomkey: {room.roomKey}</p>
+        </div>
+          // {room.host === String(userId) && <button className="home-input" onClick={() => deleteRoom(room[index])}>Delete room</button>}
+          
+      
+      );
+    });
   
     console.log(allRooms);
   if(!joinState){
   return (
-    <main>
-      {mappedRooms}
+    <div>
       <ToggleButton
         className="account-btn"
         id="toggle-check"
@@ -280,7 +284,7 @@ export default function Home({count}) {
       >
         <label htmlFor="username">USERNAME</label>
         <input 
-          className="user-input"
+          className="home-input" 
           name="username"
           id="username"
           type="text"
@@ -297,7 +301,7 @@ export default function Home({count}) {
           required
           maxLength={15} // Limit username to 20 characters
           onChange={(e) => setPasswordValue(e.target.value)}
-          className="user-input"
+          className="home-input"
         />
         <button type="submit">
           REGISTER
@@ -308,18 +312,23 @@ export default function Home({count}) {
           </Toast.Body>
         </Toast>
       </ToastContainer>
-      <br></br>
+
+    <main className='home'>
+          {mappedRooms}
+        
+         <div className="room-stuff">
           <button className="btn"onClick={createRoom} >
             CREATE ROOM
           </button>
-          <input className="user-input"value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
+          <input className="home-input"value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
     
         <button className="btn" onClick={() => joinRoom(joinKey)}>
           JOIN ROOM
         </button>
-        <input className="user-input"value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
-
+        <input className="home-input"value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
+        </div> 
     </main>
+    </div>
   )
     }
   if(joinState){

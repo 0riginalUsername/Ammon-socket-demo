@@ -96,14 +96,15 @@ const handlerFunctions = {
     }
     },
     deleteRoom: async(req, res) => {
-        const {roomId} = req.body
-        const foundRoom = await Room.findOne({
-            where: {roomId}
-        })
-        Room.destroy({
-            where: {roomId}
-        })
-        console.log('ROOM ',foundRoom.name,' DELETED!');
+        console.log(req.body);
+    //     const {roomId} = req.body
+    //     const foundRoom = await Room.findOne({
+    //         where: {roomId}
+    //     })
+    //     Room.destroy({
+    //         where: {roomId}
+    //     })
+    //     console.log('ROOM ',foundRoom.name,' DELETED!');
     }
     
    

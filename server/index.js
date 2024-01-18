@@ -26,6 +26,7 @@ app.post('/api/deleteuser', deleteUser)
 app.post('/api/edit', editUser)
 app.post('/api/getrooms', getRooms)
 app.post('/api/deleteroom', deleteRoom)
+
 const server = ViteExpress.listen(app, port, () => console.log(`Server running on http://localhost:${port}`))
 const wss = new WebSocketServer({ server: server, path: '/api/ws' })
 

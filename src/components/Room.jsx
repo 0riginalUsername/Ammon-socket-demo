@@ -41,31 +41,32 @@ function RoomPage(props){
       
       console.log(roomName);
     return(
-        <div>
+      <div>
         {roomName}
+          <br></br>
+          {username}
+          <br>
+          </br>
+          ROOMKEY IS: {roomKey}
         <ul>
           {clientList.map((client) => {
             return(
               <li key={client.userId}>
-              {client.username}
+              &gt;{client.username}
             </li>
             )
           })}        
         </ul>
         <div className="input-block">
-          <input value={messageInput} onChange={(e) => setMessageInput(e.target.value.toUpperCase())}/>
-          <button onClick={()=> sendMsg(messageInput, roomKey)}>
+          <input className="user-input" value={messageInput} onChange={(e) => setMessageInput(e.target.value.toUpperCase())}/>
+          
+          <button className="room-btn" onClick={()=> sendMsg(messageInput, roomKey)}>
             SEND MESSAGE
           </button>
       </div>
           {mappedMessages}
-        <br></br>
-        {username}
-        <br>
-        </br>
-        ROOMKEY IS: {roomKey}
-        <button onClick={()=>leaveRoom({roomKey}) }>LEAVE ROOM</button>
-        <button onClick={goHome}>ALL ROOMS</button>
+        <button className="btn" onClick={()=>leaveRoom({roomKey}) }>LEAVE ROOM</button>
+        <button className="btn" onClick={goHome}>ALL ROOMS</button>
         </div>
     )
 }

@@ -54,9 +54,8 @@ export default function LandingPage() {
   if (regState === true) {
       return (
         <>
-          <container className="box">
-          <div className="cred bottom">ENTER YOUR CREDENTIALS</div>
-          <br></br>
+          <div className="cred">ENTER YOUR CREDENTIALS</div>
+          <div className="box">
           <form
             className="bottom"
             onSubmit={(e) => {
@@ -95,13 +94,14 @@ export default function LandingPage() {
               REGISTER
             </button>
           </form>
-          </container>
+          </div>
         </>
       );
     } else {
       return (
         <>
-          <div className="bottom">CREATE NEW ACCOUNT</div>
+        <div className="cred">CREATE NEW ACCOUNT</div>
+        <div className="box">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -143,6 +143,7 @@ export default function LandingPage() {
               LOGIN
             </button>
           </form>
+        </div>
         </>
       );
     }
