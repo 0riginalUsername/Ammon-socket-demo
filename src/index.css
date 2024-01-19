@@ -67,7 +67,7 @@ body::before {
   color: black;
 }
 .cred {
-  position: fixed;
+  position: wrap;
   height: 50px;
   bottom: 60px;
   padding-bottom: 80px;
@@ -99,6 +99,7 @@ body::before {
   align-items: flex-end;
   flex-direction: row;
   height: calc(100vh - 44px);
+  flex: wrap;
 }
 .home-input {
   background-color: black;

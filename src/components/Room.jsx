@@ -48,7 +48,7 @@ function RoomPage(props){
           </br>
           ROOMKEY IS: {roomKey}
         <ul>
-          <p>USERS IN ROOM</p>
+          {/* <p>USERS IN ROOM</p> */}
           {clientList.map((client) => {
             return(
               <li key={client.userId}>

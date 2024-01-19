@@ -54,8 +54,8 @@ export default function LandingPage() {
   if (regState === true) {
       return (
         <>
-          <div className="cred">ENTER YOUR CREDENTIALS</div>
           <div className="box">
+          <div className="cred">ENTER YOUR CREDENTIALS</div>
           <form
             className="bottom"
             onSubmit={(e) => {
