@@ -91,6 +91,10 @@ Chat.init(
         message: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        username: {
+            type: DataTypes.STRING(15),
+            allowNull: false
         }
     },{
         modelName: "chats",

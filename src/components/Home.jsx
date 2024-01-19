@@ -96,7 +96,7 @@ export default function Home({count}) {
       
       let success = ''
       if(data.msg){
-    
+        console.log(data.msg);
         setMessages(data.msg)
       }
       ;
@@ -116,7 +116,8 @@ export default function Home({count}) {
         setClients(allClients)
       }
       if(data.joinRoomSuccess){
-        console.log(data.joinRoomSuccess);
+        // console.log(data);
+        // setClientList(data.currRoom)
         setRoomKey(data.joinKey)
         setMessages(data.messages)
         setRoomName(data.roomName)
@@ -127,17 +128,19 @@ export default function Home({count}) {
       }
       if(data.allUsers){
         setClientList(...clientList, data.allUsers, data.allUsers.newRoom)
-
+        console.log(data.allUsers, data.allUsers.newRoom);
         
       }
       if(data.updatedRoom){
         setClientList(data.updatedRoom)
+        console.log(clientList);
       }
       if(data.newRoom){
         
         console.log(data);
         setRoomKey(data.newRoom.roomKey)
         setRoomName(data.newRoom.name)
+        
         setJoinState(true)
       }
     })
@@ -156,7 +159,7 @@ export default function Home({count}) {
         setMessages([...messages, 'No Websocket connection'])
         return
       }
-      ws.send(JSON.stringify({msg:{message, roomKey} }))
+      ws.send(JSON.stringify({msg:{message, roomKey, username} }))
       
       
     }

@@ -6,7 +6,6 @@ import Toast from 'react-bootstrap/Toast'
 function RoomPage(props){
     const dispatch = useDispatch()
     const {sendMsg, clientList, leaveRoom, messages, roomName} = props
-    console.log(messages);
     const roomKey = useSelector((state) => state.key)
     const clients = useSelector((state) => state.clients)
     const username = useSelector((state) => state.username)
@@ -36,7 +35,7 @@ function RoomPage(props){
       
       const mappedMessages = messages.map((msg, index) => {
         // console.log(msg);
-        return <p key={index}>{msg.message}</p>
+        return <p key={index}>{msg.username}: {msg.message}</p>
       })
       
       console.log(roomName);

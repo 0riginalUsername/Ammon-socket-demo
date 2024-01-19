@@ -94,21 +94,30 @@ wss.on('connection', (ws) => {
       //  const message = isBinary? JSON.parse(data):data
       
       const message = JSON.parse(data)
-      if(message.msg){
-          console.log('Recieved message =>', message.msg)
-          let roomkey = message.msg.roomKey
-          const foundRoom = await Room.findOne({
-            where: {roomKey: roomkey},
-          })
-          let newChat = await Chat.create({message: message.msg.message, roomId: foundRoom.roomId})
-          foundRoom.addChat(newChat)
-          let foundChat = await Chat.findAll({where: {roomId: foundRoom.roomId}})
-          
+      if (message.msg) {
+        console.log(`Received message ${message.msg.username} said=>`, message.msg.message);
+        let username = message.msg.username;
+        let roomKey = message.msg.roomKey;
+        const foundRoom = await Room.findOne({
+          where: { roomKey: roomKey },
+        });
+        if (foundRoom) {
+          let newChat = await Chat.create({
+            message: message.msg.message,
+            roomId: foundRoom.roomId,
+            username: username, // Provide the username value
+          });
+          foundRoom.addChat(newChat);
+          let foundChat = await Chat.findAll({ where: { roomId: foundRoom.roomId } });
+
           console.log('Roomkey: ', foundChat);
           wss.clients.forEach((client) => {
-            client.send(JSON.stringify({msg: foundChat}))
-          })
-        } 
+            client.send(JSON.stringify({ msg: foundChat, username }));
+          });
+        } else {
+          console.log('Room not found!');
+        }
+      }
         // console.dir(message, {depth: null})
         if (message.createRoom) {
             let {username, userId, name} = message.createRoom
@@ -134,7 +143,6 @@ wss.on('connection', (ws) => {
               let players = await newRoom.getUsers()
               newRoom.players = players
               // end sequelize stuff
-              console.log(newRoom);
               
               clients[id].send(JSON.stringify({newRoom}))
         // rooms.id= roomId
@@ -187,7 +195,8 @@ wss.on('connection', (ws) => {
           // wss.clients.forEach((client) => {
           //   client.send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers, messages: foundChat}))
           // })
-          clients[id].send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers, messages: foundChat}))
+          let currentRoom = await foundRoom.getUsers()
+          clients[id].send(JSON.stringify({joinRoomSuccess: true, joinKey, currentRoom, messages: foundChat}))
         }
         
      
