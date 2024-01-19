@@ -26,7 +26,6 @@ app.post('/api/deleteuser', deleteUser)
 app.post('/api/edit', editUser)
 app.post('/api/getrooms', getRooms)
 app.post('/api/deleteroom', deleteRoom)
-
 const server = ViteExpress.listen(app, port, () => console.log(`Server running on http://localhost:${port}`))
 const wss = new WebSocketServer({ server: server, path: '/api/ws' })
 
@@ -81,8 +80,11 @@ let globalRooms = {}
 wss.on('connection', (ws) => {
   console.log('Client connected')
   const id = uuidv4()
+
+  // const message = JSON.parse(ws)
   clients[id] = ws
-//   console.log(ws);
+  // console.log(message);
+
 
   
   ws.on('error', console.error)
@@ -92,7 +94,6 @@ wss.on('connection', (ws) => {
       //  const message = isBinary? JSON.parse(data):data
       
       const message = JSON.parse(data)
-      console.log(message);
       if(message.msg){
           console.log('Recieved message =>', message.msg)
           let roomkey = message.msg.roomKey
@@ -135,9 +136,7 @@ wss.on('connection', (ws) => {
               // end sequelize stuff
               console.log(newRoom);
               
-              wss.clients.forEach((client) => {
-                client.send(JSON.stringify({newRoom}))
-              })
+              clients[id].send(JSON.stringify({newRoom}))
         // rooms.id= roomId
         // rooms.key = key
         // rooms.name = message.createRoom.name
@@ -157,9 +156,7 @@ wss.on('connection', (ws) => {
       // clients[id].send(JSON.stringify({roomId}))
     } else if (message.joinRoomReq) {
       if(!message.joinRoomReq.username){
-        wss.clients.forEach((client) => {
-          client.send(JSON.stringify({connectFail:true}))
-        })
+        clients[id].send(JSON.stringify({connectFail:true}))
         return
       }
 
@@ -172,9 +169,7 @@ wss.on('connection', (ws) => {
           {roomKey: joinKey}})
         console.log(foundRoom);
         if(!foundRoom){
-          wss.clients.forEach((client) => {
-            client.send(JSON.stringify({joinRoomSuccess: false}))
-          })
+          clients[id].send(JSON.stringify({joinRoomSuccess:false}))
           return
         }
         if(foundRoom.roomKey === joinKey){
@@ -189,9 +184,10 @@ wss.on('connection', (ws) => {
           console.log('joined room!');
           // currentRoom.usernames.push(username)
           let foundChat = await Chat.findAll({where: {roomId: foundRoom.roomId}})
-          wss.clients.forEach((client) => {
-            client.send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers, messages: foundChat}))
-          })
+          // wss.clients.forEach((client) => {
+          //   client.send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers, messages: foundChat}))
+          // })
+          clients[id].send(JSON.stringify({joinRoomSuccess: true, joinKey, allUsers, messages: foundChat}))
         }
         
      

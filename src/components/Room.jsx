@@ -49,20 +49,25 @@ function RoomPage(props){
           </br>
           ROOMKEY IS: {roomKey}
         <ul>
+          <p>USERS IN ROOM</p>
           {clientList.map((client) => {
             return(
               <li key={client.userId}>
-              &gt;{client.username}
+              {client.username}
             </li>
             )
           })}        
         </ul>
         <div className="input-block">
-          <input className="user-input" value={messageInput} onChange={(e) => setMessageInput(e.target.value.toUpperCase())}/>
-          
-          <button className="room-btn" onClick={()=> sendMsg(messageInput, roomKey)}>
-            SEND MESSAGE
+          <form onSubmit={(e)=> {
+            e.preventDefault()
+            sendMsg(messageInput, roomKey)}}>
+          <button className="room-btn" >
+            SEND MESSAGE &gt;
           </button>
+
+          <input className="user-input" value={messageInput} onChange={(e) => setMessageInput(e.target.value.toUpperCase())}/>
+          </form>
       </div>
           {mappedMessages}
         <button className="btn" onClick={()=>leaveRoom({roomKey}) }>LEAVE ROOM</button>

@@ -73,8 +73,23 @@ const handlerFunctions = {
         const foundUser = await User.findOne({
             where: {userId}
         })
+        let usernameCheck = await User.findOne({
+            where: {username}
+        })
+        if(!usernameCheck){
+        usernameCheck = ''
+        }
+        if(usernameCheck.username===username){
+            res.send({success: false})
+            return
+        }
+    
+        else{
+            console.log('hit');
         let newUser =  await foundUser.update({username, password})
         console.log('user credentials changesd to ', newUser);
+        res.send({success: true})
+        }
     },
     getRooms: async (req, res) => {
         
@@ -97,14 +112,15 @@ const handlerFunctions = {
     },
     deleteRoom: async(req, res) => {
         console.log(req.body);
-    //     const {roomId} = req.body
-    //     const foundRoom = await Room.findOne({
-    //         where: {roomId}
-    //     })
-    //     Room.destroy({
-    //         where: {roomId}
-    //     })
-    //     console.log('ROOM ',foundRoom.name,' DELETED!');
+        const {roomId} = req.body
+        const foundRoom = await Room.findOne({
+            where: {roomId: +roomId}
+        })
+        console.log(foundRoom);
+        await foundRoom.destroy()
+        const updatedRooms = await Room.findAll();
+        console.log('newrooms!',updatedRooms);
+        res.send(updatedRooms)
     }
     
    

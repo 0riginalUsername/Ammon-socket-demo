@@ -84,7 +84,7 @@ export default function Home({count}) {
     
     ws.addEventListener('open', () => {
       setMessages([...messages,'WebSocket connection established'])
-      
+      ws.send(JSON.stringify({connect:{userId:userId}}))
     });
     
     ws.addEventListener('close', () => {
@@ -116,7 +116,7 @@ export default function Home({count}) {
         setClients(allClients)
       }
       if(data.joinRoomSuccess){
-        // console.log(data.joinRoomSuccess);
+        console.log(data.joinRoomSuccess);
         setRoomKey(data.joinKey)
         setMessages(data.messages)
         setRoomName(data.roomName)
@@ -133,7 +133,13 @@ export default function Home({count}) {
       if(data.updatedRoom){
         setClientList(data.updatedRoom)
       }
-      
+      if(data.newRoom){
+        
+        console.log(data);
+        setRoomKey(data.newRoom.roomKey)
+        setRoomName(data.newRoom.name)
+        setJoinState(true)
+      }
     })
     
     
@@ -179,7 +185,7 @@ export default function Home({count}) {
       const data = {createRoom:{name: roomName, username, userId}}
       
       ws.send(JSON.stringify(data))
-      setJoinState(true)
+      
     
     //Send message to websocket server to create room.
     }
@@ -192,23 +198,26 @@ export default function Home({count}) {
     }
     const deleteAcc = async () => {
       await axios.post('http://localhost:5555/api/deleteuser', {userId})
+      alert('account deleted, logging out...')
+      navigate('/')
       
     }
     
     const navHome = () => {
-      alert('account deleted, logging out...')
+      
       navigate('/')
     }
     const runBoth = () => {
-      navHome()
       deleteAcc()
+      navHome()
     }
 
     const onReg = async (e, formData) => {
+      console.log('hit');
       e.preventDefault();
       
       const {username, password} = formData
-
+      
       let data = {
         username,
         password,
@@ -216,12 +225,13 @@ export default function Home({count}) {
       }
       
       const res = await axios.post(`http://localhost:5555/api/edit`, data);
-  
+      
       if (!res.data.success) {
         alert("Username is taken!");
-      } else {
+      } 
+      if(res.data.success) {
           alert('Account created')
-          toggleReg()
+          navigate('/')
       }
     };
     
@@ -232,32 +242,40 @@ export default function Home({count}) {
         setAllRooms(res.data)
     }
 
-    const deleteRoom = async() => {
-      let res = await axios.post('http://localhost:5555/api/deleteroom', {userId, roomKey})
+    const deleteRoom = async(props) => {
+      
+       await axios.post('http://localhost:5555/api/deleteroom', {roomId:props})
+       .then(res => setAllRooms(res.data))
+    }
+    const logout = () => {
+      navigate('/')
     }
     const mappedRooms = allRooms.map((room, index) => {
       
-      console.log(index)
+      
       return (
-        
+          <>
           <div className="room-list" key={index} onClick={() => joinRoom(room.roomKey)}>
-            <p>Name: {room.name} Roomkey: {room.roomKey}</p>
+            <p>Name: {room.name} || Roomkey: {room.roomKey}</p>
         </div>
-          // {room.host === String(userId) && <button className="home-input" onClick={() => deleteRoom(room[index])}>Delete room</button>}
-          
+            {room.host == userId && <button className="btn" onClick={() => deleteRoom(room.roomId)}>Delete room</button>}
+
+          </>
       
       );
     });
   
-    console.log(allRooms);
+
   if(!joinState){
   return (
     <div>
+      <p>Hello, {username}.</p>
+      <button className="btn logout-btn" onClick={logout}>LOGOUT</button>
       <ToggleButton
         className="account-btn"
         id="toggle-check"
         type="checkbox"
-        variant="outline-primary"
+        
         checked={checked}
         value="1"
         onChange={(e) => setChecked(e.currentTarget.checked)}
@@ -268,7 +286,7 @@ export default function Home({count}) {
       <ToastContainer
         position="top-end"
        > 
-        <Toast show={checked} onClose={toggleCheck}>
+        <Toast show={checked} onClose={toggleCheck} className="toast">
           <Toast.Header>
             {username}
           </Toast.Header>
@@ -282,7 +300,7 @@ export default function Home({count}) {
           });
         }}
       >
-        <label htmlFor="username">USERNAME</label>
+        <label htmlFor="username">USERNAME &gt;</label>
         <input 
           className="home-input" 
           name="username"
@@ -293,7 +311,8 @@ export default function Home({count}) {
           onChange={(e) => setUsernameValue(e.target.value.toUpperCase())}
           value={usernameValue}
         />
-        <label htmlFor="password">PASSWORD</label>
+        <br></br>
+        <label htmlFor="password">PASSWORD &gt;</label>
         <input
           name="password"
           id="password"
@@ -303,12 +322,11 @@ export default function Home({count}) {
           onChange={(e) => setPasswordValue(e.target.value)}
           className="home-input"
         />
-        <button type="submit">
+        <button className="btn" type="submit">
           REGISTER
         </button>
-        <button >LOGIN</button>
       </form>
-            <Button onClick={runBoth}>Delete Account</Button>
+            <Button onClick={runBoth}>DELETE ACCOUNT</Button>
           </Toast.Body>
         </Toast>
       </ToastContainer>
@@ -318,12 +336,12 @@ export default function Home({count}) {
         
          <div className="room-stuff">
           <button className="btn"onClick={createRoom} >
-            CREATE ROOM
+            CREATE ROOM &gt;
           </button>
           <input className="home-input"value={roomName} onChange={(e) => setRoomName(e.target.value)}/>
     
         <button className="btn" onClick={() => joinRoom(joinKey)}>
-          JOIN ROOM
+          JOIN ROOM &gt;
         </button>
         <input className="home-input"value={joinKey} onChange={(e) => setJoinKey(e.target.value)}/>
         </div> 

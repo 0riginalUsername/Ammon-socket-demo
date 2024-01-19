@@ -66,7 +66,7 @@ export default function LandingPage() {
               });
             }}
             >
-            <label htmlFor="username">USERNAME</label>
+            <label htmlFor="username">USERNAME &gt;</label>
             <input
               className="user-input"
               name="username"
@@ -77,7 +77,7 @@ export default function LandingPage() {
               onChange={(e) => setUsernameValue(e.target.value.toUpperCase())}
               value={usernameValue}
             />
-            <label htmlFor="password">PASSWORD</label>
+            <label htmlFor="password">PASSWORD &gt;</label>
             <input
               className="user-input"
               name="password"
@@ -112,7 +112,7 @@ export default function LandingPage() {
             }}
           >
             <label className="bottom" htmlFor="username">
-              USERNAME
+              USERNAME &gt;
             </label>
             <input
               className="user-input"
@@ -125,7 +125,7 @@ export default function LandingPage() {
               value={usernameValue}
             />
             <label className="bottom" htmlFor="password">
-              PASSWORD
+              PASSWORD &gt;
             </label>
             <input
               className="user-input"

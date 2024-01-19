@@ -1,0 +1,12 @@
+@import "../node_modules/bootstrap/scss/functions";
+
+.btn-primary{
+ --bs-btn-color: black;
+ --bs-btn-bg: #1CFF11;
+}
+
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/variables-dark";
+@import "../node_modules/bootstrap/scss/maps";
+@import "../node_modules/bootstrap/scss/mixins";
+@import "../node_modules/bootstrap/scss/root";
